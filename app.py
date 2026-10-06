@@ -1,11 +1,16 @@
 from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 
+import os
+from werkzeug.utils import secure_filename
+
 app = Flask(__name__)
 
 # --- DATABASE CONFIGURATION ---
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost/resume_builder_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['MAX_CONTENT_LENGTH'] = 3 * 1024 * 1024  # 3 MB max limit
 db = SQLAlchemy(app)
 
 # --- DATABASE MODEL ---
@@ -23,6 +28,8 @@ class User(db.Model):
     education = db.Column(db.Text)
     experience = db.Column(db.Text)
     skills = db.Column(db.Text)
+    soft_skills = db.Column(db.Text)
+    profile_pic = db.Column(db.String(255)) # Path to uploaded image
 
 # --- ROUTES ---
 @app.route('/', methods=['GET', 'POST'])
@@ -43,10 +50,24 @@ def home():
         form_experience = request.form.get('experience', '')
         form_skills = request.form.get('skills', '')
         
+        has_soft_skills = request.form.get('has_soft_skills')
+        form_soft_skills = request.form.get('soft_skills', '') if has_soft_skills else ''
+        
+        # Handle file upload
+        pic_path = None
+        if 'profile_pic' in request.files:
+            file = request.files['profile_pic']
+            if file and file.filename != '':
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                pic_path = filepath
+        
         new_user = User(
             full_name=form_name, email=form_email, target_job=form_job, template_choice=form_template,
             phone=form_phone, location=form_location, linkedin=form_linkedin, github=form_github,
-            summary=form_summary, education=form_education, experience=form_experience, skills=form_skills
+            summary=form_summary, education=form_education, experience=form_experience, skills=form_skills,
+            soft_skills=form_soft_skills, profile_pic=pic_path
         )
         
         try:
@@ -68,7 +89,8 @@ def view_resume(user_id):
         'classic': 'resume_classic.html',
         'modern': 'resume_modern.html',
         'minimalist': 'resume_minimalist.html',
-        'creative': 'resume_creative.html'
+        'creative': 'resume_creative.html',
+        'photo': 'resume_photo.html'
     }
     
     template_name = template_map.get(user_data.template_choice, 'resume_classic.html')
