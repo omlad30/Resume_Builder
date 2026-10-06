@@ -1,4 +1,4 @@
-﻿from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -15,6 +15,14 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     target_job = db.Column(db.String(100))
     template_choice = db.Column(db.String(50), default="classic")
+    phone = db.Column(db.String(20))
+    location = db.Column(db.String(100))
+    linkedin = db.Column(db.String(100))
+    github = db.Column(db.String(100))
+    summary = db.Column(db.Text)
+    education = db.Column(db.Text)
+    experience = db.Column(db.Text)
+    skills = db.Column(db.Text)
 
 # --- ROUTES ---
 @app.route('/', methods=['GET', 'POST'])
@@ -25,7 +33,21 @@ def home():
         form_job = request.form['target_job']
         form_template = request.form.get('template_choice', 'classic')
         
-        new_user = User(full_name=form_name, email=form_email, target_job=form_job, template_choice=form_template)
+        # New Fields
+        form_phone = request.form.get('phone', '')
+        form_location = request.form.get('location', '')
+        form_linkedin = request.form.get('linkedin', '')
+        form_github = request.form.get('github', '')
+        form_summary = request.form.get('summary', '')
+        form_education = request.form.get('education', '')
+        form_experience = request.form.get('experience', '')
+        form_skills = request.form.get('skills', '')
+        
+        new_user = User(
+            full_name=form_name, email=form_email, target_job=form_job, template_choice=form_template,
+            phone=form_phone, location=form_location, linkedin=form_linkedin, github=form_github,
+            summary=form_summary, education=form_education, experience=form_experience, skills=form_skills
+        )
         
         try:
             db.session.add(new_user)
@@ -33,7 +55,7 @@ def home():
             return redirect(f'/resume/{new_user.id}')
         
         except Exception as e:
-            return "<h1 style='color: red;'>Error: That email is already registered!</h1>"
+            return f"<h1 style='color: red;'>Error: That email is already registered!</h1><p>{e}</p>"
 
     return render_template('index.html')
 
@@ -42,11 +64,15 @@ def home():
 def view_resume(user_id):
     user_data = User.query.get_or_404(user_id)
     
-    if user_data.template_choice == 'modern':
-        return render_template('resume_modern.html', user=user_data)
-    else:
-        return render_template('resume.html', user=user_data)
-
+    template_map = {
+        'classic': 'resume_classic.html',
+        'modern': 'resume_modern.html',
+        'minimalist': 'resume_minimalist.html',
+        'creative': 'resume_creative.html'
+    }
+    
+    template_name = template_map.get(user_data.template_choice, 'resume_classic.html')
+    return render_template(template_name, user=user_data)
 
 # --- START THE SERVER ---
 if __name__ == '__main__':
