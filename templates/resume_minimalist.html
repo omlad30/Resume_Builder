@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ user.full_name }} - Minimalist Resume</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Lato', sans-serif; }
+        h1, h2, h3 { font-family: 'Playfair Display', serif; }
+        @media print {
+            .no-print { display: none; }
+            body { background-color: white; }
+            .page-container { box-shadow: none; max-width: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 py-8 text-gray-800">
+    <div class="max-w-4xl mx-auto mb-4 text-right no-print">
+        <button onclick="window.print()" class="bg-gray-800 text-white font-medium py-2 px-6 hover:bg-black transition">Print Resume</button>
+    </div>
+
+    <div class="page-container max-w-4xl mx-auto bg-white p-16 shadow-lg border-t-8 border-gray-900">
+        <header class="mb-10 text-center">
+            <h1 class="text-5xl font-semibold mb-2 tracking-wide">{{ user.full_name }}</h1>
+            <h2 class="text-xl text-gray-500 uppercase tracking-widest mb-4">{{ user.target_job }}</h2>
+            <div class="text-sm text-gray-500 flex justify-center gap-4">
+                <span>{{ user.email }}</span>
+                <span>•</span>
+                <span>+91 9373670420</span>
+                <span>•</span>
+                <span>Kolhapur, MH</span>
+            </div>
+        </header>
+
+        <section class="mb-10">
+            <p class="text-center text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                Computer Science Engineering student with a strong foundation in Java, Python, DBMS and web development. Experienced in building full-stack web applications using modern web technologies. Passionate about problem-solving.
+            </p>
+        </section>
+
+        <div class="grid grid-cols-2 gap-12">
+            <div>
+                <section class="mb-10">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Education</h3>
+                    <div class="mb-4">
+                        <h4 class="font-bold">B.Tech in Computer Science</h4>
+                        <p class="text-gray-500 text-sm">DYPSEM, Kolhapur | 2024 – 2027</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold">Diploma in Computer Science</h4>
+                        <p class="text-gray-500 text-sm">Dr. D. Y. Patil Polytechnic | 2021 – 2024</p>
+                    </div>
+                </section>
+            </div>
+            
+            <div>
+                <section class="mb-10">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Experience & Projects</h3>
+                    <div>
+                        <h4 class="font-bold">Civic Issue Reporter System</h4>
+                        <p class="text-gray-500 text-sm mb-2">React, Node, Firebase, Gemini AI</p>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                            <li>AI categorizes civic complaints automatically.</li>
+                            <li>Built complete dashboard for tracking.</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section>
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-900 border-b border-gray-200 pb-2">Skills</h3>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Python, Java, JavaScript, React.js, Node.js, Express.js, MongoDB, MySQL, Firebase, DSA, OOP, REST APIs.
+                    </p>
+                </section>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
