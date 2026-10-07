@@ -52,6 +52,49 @@ class Resume(db.Model):
     profile_pic = db.Column(db.String(255)) # Path to uploaded image
 
 # --- ROUTES ---
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+        
+        if User.query.filter_by(email=email).first():
+            return "<h1 style='color: red;'>Error: Email already registered!</h1><a href='/signup'>Go back</a>"
+            
+        new_user = User(name=name, email=email, password_hash=generate_password_hash(password))
+        db.session.add(new_user)
+        db.session.commit()
+        
+        login_user(new_user)
+        return redirect('/dashboard')
+    return render_template('signup.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password_hash, password):
+            login_user(user)
+            return redirect('/dashboard')
+        return "<h1 style='color: red;'>Error: Invalid email or password!</h1><a href='/login'>Go back</a>"
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect('/')
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    user_resumes = Resume.query.filter_by(user_id=current_user.id).order_by(Resume.id.desc()).all()
+    return render_template('dashboard.html', resumes=user_resumes)
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
