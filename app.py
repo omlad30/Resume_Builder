@@ -1,12 +1,18 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 
 import os
+import json
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from groq import Groq
 
 app = Flask(__name__)
+
+# --- GROQ AI SETUP ---
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
+groq_client = Groq(api_key=GROQ_API_KEY)
 
 # --- DATABASE CONFIGURATION ---
 app.config['SECRET_KEY'] = 'a_very_secret_key_for_sessions'
@@ -67,7 +73,8 @@ def signup():
         db.session.commit()
         
         login_user(new_user)
-        return redirect('/dashboard')
+        next_page = request.args.get('next')
+        return redirect(next_page) if next_page else redirect('/dashboard')
     return render_template('signup.html')
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -79,7 +86,8 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            return redirect('/dashboard')
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else redirect('/dashboard')
         return "<h1 style='color: red;'>Error: Invalid email or password!</h1><a href='/login'>Go back</a>"
     return render_template('login.html')
 
@@ -146,8 +154,18 @@ def home():
 
 
 @app.route('/resume/<int:resume_id>')
+@login_required
 def view_resume(resume_id):
     user_data = Resume.query.get_or_404(resume_id)
+    
+    # Claim anonymous resume
+    if user_data.user_id is None:
+        user_data.user_id = current_user.id
+        db.session.commit()
+        
+    # Security check
+    if user_data.user_id != current_user.id:
+        return "<h1 style='color: red;'>Access Denied! You do not own this resume.</h1>", 403
     
     template_map = {
         'classic': 'resume_classic.html',
@@ -159,6 +177,55 @@ def view_resume(resume_id):
     
     template_name = template_map.get(user_data.template_choice, 'resume_classic.html')
     return render_template(template_name, user=user_data)
+
+@app.route('/delete_resume/<int:resume_id>', methods=['POST'])
+@login_required
+def delete_resume(resume_id):
+    resume = Resume.query.get_or_404(resume_id)
+    if resume.user_id != current_user.id:
+        return "Unauthorized", 403
+    db.session.delete(resume)
+    db.session.commit()
+    return redirect(url_for('dashboard'))
+
+# --- AI API ROUTE ---
+@app.route('/api/generate_resume', methods=['POST'])
+def generate_resume():
+    data = request.json
+    raw_text = data.get('raw_text', '')
+    
+    if not raw_text:
+        return jsonify({'error': 'No text provided'}), 400
+        
+    prompt = f"""
+    You are an expert ATS resume writer. The user has provided messy text (an old resume, a LinkedIn profile, or a job description).
+    Extract and organize the information into a highly professional format.
+    
+    Return EXACTLY a JSON object with the following keys, and nothing else:
+    {{
+        "summary": "A powerful 3-sentence professional summary.",
+        "experience": "Format as: Job Title @ Company (Years)\\n• Bullet point 1\\n• Bullet point 2",
+        "education": "Format as: Degree\\nUniversity (Years)",
+        "skills": "Comma separated list of technical skills",
+        "soft_skills": "Comma separated list of soft skills"
+    }}
+    
+    User Text:
+    {raw_text}
+    """
+    
+    try:
+        completion = groq_client.chat.completions.create(
+            model="qwen/qwen3.8-27b",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,
+            response_format={"type": "json_object"}
+        )
+        
+        response_json = completion.choices[0].message.content
+        return jsonify(json.loads(response_json))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # --- START THE SERVER ---
 if __name__ == '__main__':

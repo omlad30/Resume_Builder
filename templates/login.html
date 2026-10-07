@@ -5,44 +5,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - ProResume Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Outfit', sans-serif; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
     </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="text-slate-800 min-h-screen flex items-center justify-center p-4 relative">
+    
+    <a href="/" class="absolute top-8 left-8 text-slate-500 hover:text-blue-600 transition-colors flex items-center gap-2 font-bold z-20">
+        <i class="fa-solid fa-arrow-left"></i> Back to Home
+    </a>
 
-    <!-- Background Elements -->
-    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-violet-600 rounded-full mix-blend-multiply filter blur-[100px] opacity-40 animate-blob"></div>
-        <div class="absolute top-[20%] right-[-10%] w-96 h-96 bg-fuchsia-600 rounded-full mix-blend-multiply filter blur-[100px] opacity-40 animate-blob animation-delay-2000"></div>
-    </div>
-
-    <div class="w-full max-w-md bg-slate-800/40 backdrop-blur-xl border border-slate-700/50 p-8 rounded-2xl shadow-2xl relative z-10">
+    <div class="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-200 relative z-10">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-fuchsia-400">Welcome Back</h1>
-            <p class="text-slate-400 text-sm mt-2">Log in to manage your resumes</p>
+            <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl mx-auto mb-4 shadow-lg shadow-blue-600/30">
+                <i class="fa-solid fa-file-lines"></i>
+            </div>
+            <h1 class="text-3xl font-black text-slate-900">Welcome Back</h1>
+            <p class="text-slate-500 mt-2 font-medium">Log in to manage your resumes</p>
         </div>
 
-        <form action="/login" method="POST" class="space-y-6">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm font-semibold mb-6 border border-red-100 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-exclamation"></i> {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('login', next=request.args.get('next')) }}" method="POST" class="space-y-5">
             <div>
-                <label class="block text-sm font-semibold text-slate-300 mb-2">Email</label>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email</label>
                 <input type="email" name="email" required placeholder="name@example.com"
-                    class="w-full bg-slate-900/50 border border-slate-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all">
-            </div>
-            <div>
-                <label class="block text-sm font-semibold text-slate-300 mb-2">Password</label>
-                <input type="password" name="password" required placeholder="••••••••"
-                    class="w-full bg-slate-900/50 border border-slate-700 text-white px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all">
+                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
             </div>
             
-            <button type="submit" class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:from-violet-500 hover:to-indigo-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all duration-300 transform hover:-translate-y-0.5">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
+                <input type="password" name="password" required placeholder="••••••••"
+                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+            </div>
+            
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition transform hover:-translate-y-0.5 text-lg mt-4">
                 Log In
             </button>
         </form>
 
-        <p class="text-center text-sm text-slate-400 mt-6">
-            Don't have an account? <a href="/signup" class="text-violet-400 font-semibold hover:text-violet-300 transition-colors">Sign up</a>
+        <p class="text-center text-slate-500 mt-8 font-medium">
+            Don't have an account? <a href="{{ url_for('signup', next=request.args.get('next')) }}" class="text-blue-600 hover:text-blue-700 font-bold ml-1 transition">Sign up</a>
         </p>
     </div>
 </body>

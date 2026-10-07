@@ -1,309 +1,450 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProResume - The AI-Powered Resume Builder</title>
-    <!-- Using Tailwind CSS for fully responsive, beautiful styling -->
+    <title>ProResume - The AI Resume Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Outfit', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
-            color: #f8fafc;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .hero-gradient { background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%); }
         
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .input-field {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .input-field:focus {
-            transform: translateY(-2px);
-            border-color: #8b5cf6;
-            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3);
-            outline: none;
-        }
-        
-        .input-field::placeholder {
-            color: #64748b;
-        }
-
-        /* Custom Scrollbar for the form */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0f172a; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #475569; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b; 
-        }
-        
-        .gradient-text {
-            background: linear-gradient(to right, #a78bfa, #3b82f6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+        /* Smooth scrolling to form */
+        html { scroll-behavior: smooth; }
     </style>
 </head>
-
-<body class="min-h-screen flex flex-col">
+<body class="text-slate-800 min-h-screen flex flex-col">
 
     <!-- NAVBAR -->
-    <nav class="glass-panel sticky top-0 z-50 py-4 px-8 flex justify-between items-center border-b border-white/10">
-        <div class="flex items-center gap-2">
-            <i class="fa-solid fa-file-signature text-3xl text-violet-500"></i>
-            <span class="text-2xl font-bold tracking-tight">Pro<span class="gradient-text">Resume</span></span>
-        </div>
-        <div class="hidden md:flex gap-8 text-sm font-medium text-slate-300">
-            <a href="#" class="hover:text-violet-400 transition">Templates</a>
-            <a href="#" class="hover:text-violet-400 transition">Features</a>
-            <a href="#" class="hover:text-violet-400 transition">Pricing</a>
-            <a href="#" class="hover:text-violet-400 transition">Contact</a>
-        </div>
-        <div>
-            {% if current_user.is_authenticated %}
-            <a href="/dashboard" class="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2 rounded-full font-semibold transition shadow-lg shadow-violet-500/30">Dashboard</a>
-            {% else %}
-            <a href="/login" class="text-slate-300 hover:text-white font-semibold py-2 px-4 transition-all mr-2">Log In</a>
-            <a href="/signup" class="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2 rounded-full font-semibold transition shadow-lg shadow-violet-500/30">Sign Up</a>
-            {% endif %}
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-blue-600 rounded flex items-center justify-center text-white"><i class="fa-solid fa-file-lines"></i></div>
+                    <span class="text-xl font-black tracking-tight text-slate-900">ProResume<span class="text-blue-600">.</span></span>
+                </div>
+                <div class="flex items-center">
+                    {% if current_user.is_authenticated %}
+                    <a href="/dashboard" class="text-slate-600 hover:text-blue-600 font-semibold text-sm px-4 transition">Dashboard</a>
+                    <a href="/logout" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-5 rounded-lg transition ml-2 text-sm border border-slate-200">Log out</a>
+                    {% else %}
+                    <a href="/login" class="text-slate-600 hover:text-blue-600 font-semibold text-sm px-4 transition">Log in</a>
+                    <a href="/signup" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg transition shadow-md shadow-blue-500/20 ml-2 text-sm">Create my resume</a>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </nav>
 
     <!-- MAIN CONTENT -->
-    <main class="flex-grow container mx-auto px-4 py-12 flex flex-col lg:flex-row gap-12 items-start">
-        
-        <!-- LEFT SIDE: HERO & IMAGE -->
-        <div class="lg:w-1/2 space-y-8">
-            <div class="space-y-4">
-                <div class="inline-block bg-violet-500/20 border border-violet-500/30 text-violet-300 px-4 py-1.5 rounded-full text-sm font-semibold tracking-wide">
-                    <i class="fa-solid fa-bolt mr-2"></i> AI-Powered Builder
-                </div>
-                <h1 class="text-5xl lg:text-6xl font-extrabold leading-tight">
-                    Build a resume that <br> <span class="gradient-text">gets you hired.</span>
-                </h1>
-                <p class="text-slate-400 text-lg leading-relaxed max-w-lg">
-                    Stand out from the crowd with our ATS-friendly, beautifully designed templates. Enter your details on the right and get a pixel-perfect PDF instantly.
-                </p>
-            </div>
+    <main class="flex-grow hero-gradient">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
             
-            <!-- AI Generated Image -->
-            <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-violet-900/40 border border-white/10 group">
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent z-10"></div>
-                <img src="/static/hero_image.jpg" alt="Modern Resume Workspace" class="w-full h-auto object-cover transform group-hover:scale-105 transition duration-700">
-                <div class="absolute bottom-6 left-6 z-20">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-emerald-500/20 text-emerald-400 p-2 rounded-lg backdrop-blur-md border border-emerald-500/30">
-                            <i class="fa-solid fa-check-circle"></i>
-                        </div>
-                        <div>
-                            <p class="text-white font-bold">ATS Optimized</p>
-                            <p class="text-slate-300 text-xs">Passed all scanner tests</p>
-                        </div>
+            <!-- LEFT: HERO MESSAGING -->
+            <div class="lg:w-1/2 lg:sticky lg:top-32">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-blue-100 text-blue-700 text-xs font-bold mb-6 shadow-sm">
+                    <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span> THE #1 AI RESUME BUILDER
+                </div>
+                
+                <h1 class="text-5xl lg:text-6xl font-black text-slate-900 leading-tight mb-6 tracking-tight">
+                    This AI resume builder gets you <span class="text-blue-600 underline decoration-blue-300 underline-offset-4">an interview.</span>
+                </h1>
+                
+                <p class="text-lg text-slate-600 mb-8 max-w-lg leading-relaxed font-medium">
+                    Only 2% of resumes win. Yours will be one of them. Build, format, and perfectly tailor your ATS-friendly professional resume in just minutes.
+                </p>
+                
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-10">
+                    <a href="#builder-form" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl shadow-xl shadow-blue-600/30 transition transform hover:-translate-y-0.5 text-lg flex items-center gap-2">
+                        Create my resume <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+
+                <!-- TRUST/REVIEWS -->
+                <div class="flex items-center gap-4 text-sm font-semibold text-slate-700 bg-white p-4 rounded-xl border border-slate-200 shadow-sm inline-flex">
+                    <div class="flex flex-col items-center border-r border-slate-200 pr-4">
+                        <span class="text-emerald-500 text-lg tracking-tighter mb-1">
+                            <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i>
+                        </span>
+                        <span class="text-xs text-slate-500 font-normal">Trustpilot</span>
+                    </div>
+                    <div>
+                        <p class="text-slate-800"><strong>Excellent</strong> 4.8 out of 5</p>
+                        <p class="text-emerald-600 font-bold text-xs mt-1 bg-emerald-50 inline-block px-2 py-0.5 rounded"><i class="fa-solid fa-check mr-1"></i> 39% more likely to land the job</p>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- RIGHT SIDE: THE FORM -->
-        <div class="lg:w-1/2 w-full max-w-xl">
-            <div class="glass-panel p-6 md:p-8 rounded-2xl relative overflow-hidden">
-                <!-- Decorative blob -->
-                <div class="absolute -top-24 -right-24 w-64 h-64 bg-violet-600 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-                
-                <h2 class="text-xl font-bold mb-4 flex items-center gap-2 relative z-10">
-                    <i class="fa-solid fa-wand-magic-sparkles text-violet-400"></i> Enter Your Details
-                </h2>
+            <!-- RIGHT: THE FORM -->
+            <div class="lg:w-1/2 w-full" id="builder-form">
+                <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-slate-100 relative">
+                    
+                    <h2 class="text-2xl font-black text-slate-900 mb-6">Enter Your Details</h2>
 
-                <!-- AI Auto-Fill Banner -->
-                <div class="bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 border border-violet-500/30 p-4 rounded-xl mb-6 relative z-10 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-sm font-bold text-violet-300 flex items-center gap-2"><i class="fa-solid fa-robot"></i> ✨ Auto-Fill with AI (Coming Soon)</h3>
-                        <p class="text-xs text-slate-400 mt-1">Paste a job description or LinkedIn URL to instantly generate your entire resume.</p>
+                    <!-- AI AUTO FILL -->
+                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-8">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold text-blue-900 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Auto-Fill with AI</h3>
+                            <span class="bg-blue-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">Fastest</span>
+                        </div>
+                        <p class="text-xs text-blue-700/80 mb-3">Paste your messy notes, job description, or old resume here. We'll instantly format it for you.</p>
+                        
+                        <textarea id="ai-input" rows="3" class="w-full bg-white border border-blue-200 text-slate-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 text-sm placeholder-slate-400 shadow-sm" placeholder="Paste your text here..."></textarea>
+                        
+                        <button type="button" id="ai-button" onclick="generateWithAI()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-lg transition shadow-md flex items-center justify-center gap-2">
+                            Extract & Fill Form
+                        </button>
+                        <p id="ai-status" class="text-blue-600 text-xs mt-3 hidden text-center font-bold bg-blue-100 py-2 rounded-md"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> AI is processing your text...</p>
                     </div>
-                    <button type="button" class="bg-violet-600/50 hover:bg-violet-600 text-white text-xs font-bold py-2 px-4 rounded-lg transition" disabled>Try AI</button>
+
+                    <!-- THE FORM -->
+                    <form action="/" method="POST" enctype="multipart/form-data" class="space-y-5">
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name *</label>
+                                <input type="text" name="full_name" required placeholder="e.g. Rahul Sharma"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Target Job Title *</label>
+                                <input type="text" name="target_job" required placeholder="e.g. Software Engineer"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email *</label>
+                                <input type="email" name="email" required placeholder="name@example.com"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Phone</label>
+                                <input type="text" name="phone" placeholder="+91 98765 43210"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Location</label>
+                                <input type="text" name="location" placeholder="Bengaluru"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">LinkedIn URL</label>
+                                <input type="text" name="linkedin" placeholder="linkedin.com/in/..."
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">GitHub / Portfolio</label>
+                                <input type="text" name="github" placeholder="github.com/..."
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Professional Summary</label>
+                            <textarea name="summary" rows="3" placeholder="A brief professional summary..."
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Experience & Projects</label>
+                            <textarea name="experience" rows="4" placeholder="Software Engineer @ TechCorp (2020-Present)&#10;• Built a highly scalable backend..."
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Education</label>
+                            <textarea name="education" rows="3" placeholder="B.Tech in Computer Science&#10;IIT Bombay (2016-2020)"
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Technical Skills</label>
+                                <input type="text" name="skills" placeholder="Python, React, AWS, Docker..."
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Soft Skills</label>
+                                <input type="text" name="soft_skills" placeholder="Leadership, Agile, Communication..."
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                            </div>
+                        </div>
+
+                        <!-- Template Selector -->
+                        <div class="pt-4 border-t border-slate-100">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Choose Your Design</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="template" value="classic" class="peer sr-only" checked>
+                                    <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
+                                        <div class="font-bold text-slate-800 text-sm">The Classic</div>
+                                        <div class="text-xs text-slate-500">Standard ATS Format</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="template" value="modern" class="peer sr-only">
+                                    <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
+                                        <div class="font-bold text-slate-800 text-sm">Modern</div>
+                                        <div class="text-xs text-slate-500">2-Column Layout</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="template" value="minimalist" class="peer sr-only">
+                                    <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
+                                        <div class="font-bold text-slate-800 text-sm">Minimalist</div>
+                                        <div class="text-xs text-slate-500">Clean & Simple</div>
+                                    </div>
+                                </label>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="template" value="creative" class="peer sr-only">
+                                    <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
+                                        <div class="font-bold text-slate-800 text-sm">Creative</div>
+                                        <div class="text-xs text-slate-500">Vibrant Header</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Add Photo Template separately due to file upload -->
+                        <div class="mt-3">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="template" value="photo" class="peer sr-only" id="photo-radio">
+                                <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
+                                    <div class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-camera mr-1 text-slate-400"></i> Photo Resume</div>
+                                    <div class="text-xs text-slate-500">Include Profile Picture</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <!-- Hidden File Input for Photo Template -->
+                        <div id="photo-upload-section" class="hidden mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Upload Profile Photo (Max 3MB)</label>
+                            <input type="file" name="profile_photo" accept="image/*" class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition">
+                        </div>
+
+                        <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 text-lg mt-6">
+                            Generate My Resume
+                        </button>
+                    </form>
                 </div>
-
-                <form action="/" method="POST" enctype="multipart/form-data" class="space-y-6 relative z-10">
-
-                    <!-- Personal Info -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Full Name *</label>
-                            <input type="text" name="full_name" required placeholder="Rahul Sharma"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Target Job Title *</label>
-                            <input type="text" name="target_job" required placeholder="Full Stack Developer"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Email *</label>
-                            <input type="email" name="email" required placeholder="rahul.sharma@gmail.com"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Phone Number</label>
-                            <input type="text" name="phone" placeholder="+91 98765 43210"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Location</label>
-                            <input type="text" name="location" placeholder="Bengaluru, Karnataka"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg">
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-2">Profile Photo (Max 3MB, Optional)</label>
-                        <input type="file" name="profile_pic" accept="image/*" id="profile_pic"
-                            class="input-field w-full px-3 py-2 text-sm rounded-lg file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-violet-600 file:text-white hover:file:bg-violet-700">
-                    </div>
-
-                    <!-- Socials -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2"><i class="fa-brands fa-linkedin text-[#0A66C2] mr-1"></i> LinkedIn</label>
-                            <input type="text" name="linkedin" placeholder="linkedin.com/in/rahulsharma"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2"><i class="fa-brands fa-github text-white mr-1"></i> GitHub / Portfolio</label>
-                            <input type="text" name="github" placeholder="github.com/rahul-dev"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg">
-                        </div>
-                    </div>
-
-                    <!-- Long form text -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-2">Professional Summary</label>
-                        <textarea name="summary" rows="2" placeholder="Passionate Full Stack Developer with 4+ years of experience building scalable web applications. Strong track record of improving system performance by 30%..."
-                            class="input-field w-full px-3 py-2 text-sm rounded-lg resize-none"></textarea>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Education</label>
-                            <textarea name="education" rows="3" placeholder="M.Tech in Computer Science&#10;IIT Bombay (2020-2022)&#10;&#10;B.E. in Information Technology&#10;Pune University (2016-2020)"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg resize-none"></textarea>
-                            <p class="text-[10px] text-slate-400 mt-1"><i class="fa-solid fa-circle-info mr-1"></i> Press Enter to separate multiple degrees</p>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Experience / Projects</label>
-                            <textarea name="experience" rows="3" placeholder="Software Engineer @ TCS&#10;- Built a scalable microservices architecture&#10;&#10;Junior Developer @ Startup Inc&#10;- Redesigned user dashboard"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg resize-none"></textarea>
-                            <p class="text-[10px] text-slate-400 mt-1"><i class="fa-solid fa-circle-info mr-1"></i> Press Enter to separate multiple jobs</p>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-300 mb-2">Technical Skills</label>
-                            <input type="text" name="skills" placeholder="Python, Java, React.js, Node.js, MySQL"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg">
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2 mb-2">
-                                <input type="checkbox" id="has_soft_skills" name="has_soft_skills" value="yes" class="rounded border-slate-700 bg-slate-800 text-violet-600 focus:ring-violet-500 cursor-pointer">
-                                <label for="has_soft_skills" class="text-xs font-semibold text-slate-300 cursor-pointer">Include Soft Skills?</label>
-                            </div>
-                            <input type="text" id="soft_skills" name="soft_skills" placeholder="Leadership, Problem Solving, Communication"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg opacity-50 cursor-not-allowed" disabled>
-                        </div>
-                    </div>
-
-                    <!-- Template Selection -->
-                    <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700/50 mt-2">
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Select Design Template</label>
-                        <div class="relative">
-                            <select name="template_choice"
-                                class="input-field w-full px-3 py-2 text-sm rounded-lg appearance-none cursor-pointer font-medium text-white">
-                                <option value="classic" class="bg-slate-800">📄 The Classic (Professional & ATS Friendly)</option>
-                                <option value="modern" class="bg-slate-800">💼 The Modern (Creative & Bold)</option>
-                                <option value="minimalist" class="bg-slate-800">✨ The Minimalist (Clean & Simple)</option>
-                                <option value="creative" class="bg-slate-800">🎨 The Creative (Vibrant & Standout)</option>
-                                <option value="photo" class="bg-slate-800">📸 Photo Resume (Modern & ATS Friendly)</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-violet-400">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <button type="submit"
-                        class="w-full bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold py-2.5 px-4 rounded-lg hover:from-violet-500 hover:to-indigo-500 hover:shadow-[0_0_15px_rgba(139,92,246,0.5)] transition-all duration-300 transform hover:-translate-y-0.5 flex justify-center items-center gap-2 mt-2">
-                        <span>Generate My Resume</span>
-                        <i class="fa-solid fa-arrow-right text-sm"></i>
-                    </button>
-
-                </form>
-                <script>
-                    document.getElementById('has_soft_skills').addEventListener('change', function() {
-                        const input = document.getElementById('soft_skills');
-                        if(this.checked) {
-                            input.disabled = false;
-                            input.classList.remove('opacity-50', 'cursor-not-allowed');
-                        } else {
-                            input.disabled = true;
-                            input.classList.add('opacity-50', 'cursor-not-allowed');
-                        }
-                    });
-                    
-                    document.querySelector('form').addEventListener('submit', function(e) {
-                        const fileInput = document.getElementById('profile_pic');
-                        if(fileInput.files.length > 0) {
-                            const fileSize = fileInput.files[0].size / 1024 / 1024; // in MB
-                            if(fileSize > 3) {
-                                e.preventDefault();
-                                alert('Error: Profile photo must be less than 3 MB.');
-                            }
-                        }
-                    });
-                </script>
             </div>
         </div>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="border-t border-white/10 mt-12 bg-slate-900/50">
-        <div class="container mx-auto px-8 py-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-2">
-                <i class="fa-solid fa-file-signature text-xl text-violet-500"></i>
-                <span class="font-bold text-slate-300">ProResume</span>
+    <!-- TEMPLATES SHOWCASE -->
+    <section class="bg-white py-20 border-t border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-3xl lg:text-4xl font-black text-slate-900 mb-4">Job-winning resume templates</h2>
+                <p class="text-lg text-slate-600">Each template is expertly designed to follow the exact formatting rules hiring managers and ATS bots look for. Stand out and get hired faster.</p>
             </div>
-            <p class="text-sm text-slate-500">© 2026 ProResume Inc. Built with passion and Python.</p>
-            <div class="flex gap-4 text-slate-400">
-                <a href="#" class="hover:text-white transition"><i class="fa-brands fa-twitter"></i></a>
-                <a href="#" class="hover:text-white transition"><i class="fa-brands fa-github"></i></a>
-                <a href="#" class="hover:text-white transition"><i class="fa-brands fa-discord"></i></a>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Template 1: Classic -->
+                <div class="group cursor-pointer">
+                    <div class="bg-slate-50 rounded-xl aspect-[210/297] mb-4 p-4 border border-slate-200 shadow-sm relative transition transform group-hover:-translate-y-2 group-hover:shadow-xl overflow-hidden flex items-center justify-center">
+                        <div class="w-full h-full bg-white shadow-md border border-slate-100 p-3 flex flex-col text-[5px] leading-tight text-slate-800">
+                            <div class="text-center font-bold text-[8px] mb-0.5">JOHN DOE</div>
+                            <div class="text-center text-[5px] text-slate-500 mb-2">Software Engineer | john@email.com | (555) 123-4567</div>
+                            
+                            <div class="font-bold border-b border-slate-800 mb-1 pb-0.5 uppercase text-[6px]">Professional Summary</div>
+                            <div class="text-slate-600 mb-2">Results-driven Software Engineer with 5+ years of experience in full-stack web development, cloud architecture, and building scalable SaaS products.</div>
+                            
+                            <div class="font-bold border-b border-slate-800 mb-1 pb-0.5 uppercase text-[6px]">Experience</div>
+                            <div class="font-bold">Senior Developer at TechCorp</div>
+                            <div class="text-slate-500 mb-1 font-semibold">2020 - Present</div>
+                            <div class="text-slate-600 mb-2 pl-2">
+                                • Led a team of 5 engineers to rebuild the core platform.<br>
+                                • Improved API response times by 40%.
+                            </div>
+                            
+                            <div class="font-bold border-b border-slate-800 mb-1 pb-0.5 uppercase text-[6px]">Education</div>
+                            <div class="font-bold">B.S. Computer Science</div>
+                            <div class="text-slate-600 mb-2">University of Technology, 2016 - 2020</div>
+                            
+                            <div class="font-bold border-b border-slate-800 mb-1 pb-0.5 uppercase text-[6px]">Skills</div>
+                            <div class="text-slate-600">Python, React, AWS, Docker, Agile, Leadership</div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 text-center">The Classic</h3>
+                    <p class="text-sm text-slate-500 text-center">Strict ATS standard</p>
+                </div>
+
+                <!-- Template 2: Modern -->
+                <div class="group cursor-pointer">
+                    <div class="bg-slate-50 rounded-xl aspect-[210/297] mb-4 p-4 border border-slate-200 shadow-sm relative transition transform group-hover:-translate-y-2 group-hover:shadow-xl overflow-hidden flex items-center justify-center">
+                        <div class="w-full h-full bg-white shadow-md border border-slate-100 flex text-[5px] leading-tight">
+                            <div class="w-[35%] bg-slate-800 text-slate-300 p-2 flex flex-col">
+                                <div class="w-8 h-8 rounded-full bg-slate-600 mx-auto mb-2 overflow-hidden flex items-center justify-center">
+                                    <i class="fa-solid fa-user text-slate-400 text-[10px]"></i>
+                                </div>
+                                <div class="font-bold text-white text-center text-[5px] mb-1 mt-1 border-b border-slate-600 pb-0.5">CONTACT</div>
+                                <div class="mb-2 text-center">john@email.com<br>(555) 123-4567</div>
+                                <div class="font-bold text-white text-center text-[5px] mb-1 mt-2 border-b border-slate-600 pb-0.5">SKILLS</div>
+                                <div class="text-center">Python<br>React<br>AWS<br>Docker</div>
+                            </div>
+                            <div class="w-[65%] p-2 text-slate-800 flex flex-col">
+                                <div class="font-black text-[9px] text-blue-600 mb-0.5 tracking-tight">JOHN DOE</div>
+                                <div class="text-[5px] font-bold mb-2 uppercase tracking-wide text-slate-500">Software Engineer</div>
+                                
+                                <div class="font-bold border-b border-slate-200 mb-1 text-[5px] text-blue-600 uppercase">Profile</div>
+                                <div class="text-slate-600 mb-2">Results-driven dev with 5+ years building scalable systems.</div>
+                                
+                                <div class="font-bold border-b border-slate-200 mb-1 text-[5px] text-blue-600 mt-1 uppercase">Experience</div>
+                                <div class="font-bold">Senior Developer</div>
+                                <div class="text-slate-500 mb-1">TechCorp (2020 - Present)</div>
+                                <div class="text-slate-600 mb-2 pl-2">
+                                    • Led team of 5<br>
+                                    • Improved APIs 40%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 text-center">Modern</h3>
+                    <p class="text-sm text-slate-500 text-center">2-Column Layout</p>
+                </div>
+
+                <!-- Template 3: Minimalist -->
+                <div class="group cursor-pointer">
+                    <div class="bg-slate-50 rounded-xl aspect-[210/297] mb-4 p-4 border border-slate-200 shadow-sm relative transition transform group-hover:-translate-y-2 group-hover:shadow-xl overflow-hidden flex items-center justify-center">
+                        <div class="w-full h-full bg-white shadow-md border border-slate-100 p-3 flex flex-col text-[5px] leading-tight text-slate-800">
+                            <div class="font-light text-[9px] tracking-widest mb-1 text-slate-900">JOHN DOE</div>
+                            <div class="flex gap-2 text-slate-400 mb-3 border-b border-slate-100 pb-2">
+                                <span>Software Engineer</span>
+                                <span>•</span>
+                                <span>john@email.com</span>
+                            </div>
+                            
+                            <div class="flex gap-2 mb-2">
+                                <div class="w-1/4 font-bold text-slate-900 uppercase">Profile</div>
+                                <div class="w-3/4 text-slate-500">5+ years building scalable web apps and leading backend teams.</div>
+                            </div>
+                            
+                            <div class="flex gap-2 mb-2">
+                                <div class="w-1/4 font-bold text-slate-900 uppercase">Exp.</div>
+                                <div class="w-3/4 text-slate-500">
+                                    <div class="font-bold text-slate-800">Senior Developer, TechCorp</div>
+                                    <div>2020 - Present</div>
+                                    <div class="mt-1">• Rebuilt core platform<br>• Improved latency by 40%</div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <div class="w-1/4 font-bold text-slate-900 uppercase">Skills</div>
+                                <div class="w-3/4 text-slate-500">Python, React, AWS, Docker</div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 text-center">Minimalist</h3>
+                    <p class="text-sm text-slate-500 text-center">Clean & Simple</p>
+                </div>
+
+                <!-- Template 4: Creative -->
+                <div class="group cursor-pointer">
+                    <div class="bg-slate-50 rounded-xl aspect-[210/297] mb-4 p-4 border border-slate-200 shadow-sm relative transition transform group-hover:-translate-y-2 group-hover:shadow-xl overflow-hidden flex items-center justify-center">
+                        <div class="w-full h-full bg-white shadow-md border border-slate-100 flex flex-col text-[5px] leading-tight text-slate-800">
+                            <div class="w-full bg-gradient-to-r from-fuchsia-500 to-violet-500 p-3 flex flex-col justify-center text-white">
+                                <div class="font-black text-[9px] tracking-widest mb-0.5">JOHN DOE</div>
+                                <div class="font-semibold text-white/80">Software Engineer</div>
+                            </div>
+                            <div class="p-3 flex flex-col">
+                                <div class="font-bold text-fuchsia-600 mb-1 border-l-2 border-fuchsia-500 pl-1 uppercase text-[5px]">About Me</div>
+                                <div class="text-slate-600 mb-2">Experienced dev focused on high-performance cloud architectures.</div>
+                                
+                                <div class="font-bold text-fuchsia-600 mb-1 border-l-2 border-fuchsia-500 pl-1 mt-1 uppercase text-[5px]">History</div>
+                                <div class="font-bold text-slate-800">Senior Developer @ TechCorp</div>
+                                <div class="text-slate-500 mb-1">2020 - Present</div>
+                                <div class="text-slate-600 mb-2">
+                                    • Managed 5 engineers<br>
+                                    • Scaled infrastructure
+                                </div>
+                                
+                                <div class="font-bold text-fuchsia-600 mb-1 border-l-2 border-fuchsia-500 pl-1 mt-1 uppercase text-[5px]">Expertise</div>
+                                <div class="text-slate-600">Python, React, AWS, Docker</div>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900 text-center">Creative</h3>
+                    <p class="text-sm text-slate-500 text-center">Vibrant Header</p>
+                </div>
             </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-50 border-t border-slate-200 py-10">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="text-lg font-black text-slate-900 mb-2">ProResume<span class="text-blue-600">.</span></div>
+            <p class="text-sm text-slate-500">© 2026 ProResume Inc. Built for job seekers.</p>
         </div>
     </footer>
 
-</body>
+    <script>
+        // Photo upload toggle logic
+        const photoRadio = document.getElementById('photo-radio');
+        const photoSection = document.getElementById('photo-upload-section');
+        const allRadios = document.querySelectorAll('input[name="template"]');
 
+        allRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (photoRadio.checked) {
+                    photoSection.classList.remove('hidden');
+                } else {
+                    photoSection.classList.add('hidden');
+                }
+            });
+        });
+
+        // AI Logic
+        async function generateWithAI() {
+            const rawText = document.getElementById('ai-input').value;
+            const btn = document.getElementById('ai-button');
+            const status = document.getElementById('ai-status');
+            
+            if(!rawText.trim()) {
+                alert("Please paste some text into the AI box first!");
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            status.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/api/generate_resume', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ raw_text: rawText })
+                });
+                
+                const data = await response.json();
+                
+                if(response.ok) {
+                    if(data.summary) document.getElementsByName('summary')[0].value = data.summary;
+                    if(data.experience) document.getElementsByName('experience')[0].value = data.experience;
+                    if(data.education) document.getElementsByName('education')[0].value = data.education;
+                    if(data.skills) document.getElementsByName('skills')[0].value = data.skills;
+                    if(data.soft_skills) document.getElementsByName('soft_skills')[0].value = data.soft_skills;
+                    
+                    alert("✨ AI Magic Complete! Review your filled form below.");
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch(err) {
+                console.error(err);
+                alert("Something went wrong connecting to the AI.");
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                status.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
 </html>
