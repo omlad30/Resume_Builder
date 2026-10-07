@@ -81,7 +81,12 @@
             <a href="#" class="hover:text-violet-400 transition">Contact</a>
         </div>
         <div>
-            <button class="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2 rounded-full font-semibold transition shadow-lg shadow-violet-500/30">Sign In</button>
+            {% if current_user.is_authenticated %}
+            <a href="/dashboard" class="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2 rounded-full font-semibold transition shadow-lg shadow-violet-500/30">Dashboard</a>
+            {% else %}
+            <a href="/login" class="text-slate-300 hover:text-white font-semibold py-2 px-4 transition-all mr-2">Log In</a>
+            <a href="/signup" class="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2 rounded-full font-semibold transition shadow-lg shadow-violet-500/30">Sign Up</a>
+            {% endif %}
         </div>
     </nav>
 

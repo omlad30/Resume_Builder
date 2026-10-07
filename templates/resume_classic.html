@@ -1,119 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ user.full_name }} - Resume</title>
-    <!-- Using Tailwind for a pixel-perfect, ATS-friendly layout -->
+    <title>{{ user.full_name }} - Classic Resume</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Print styles to ensure the PDF looks perfect */
+        body { 
+            font-family: 'Times New Roman', Times, serif; 
+            background-color: #f3f4f6; 
+            color: #000;
+        }
+        .page-container {
+            max-width: 850px;
+            margin: 2rem auto;
+            background-color: white;
+            padding: 40px 50px; /* Standard 1-inch margins roughly */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3, h4, h5, h6 { margin: 0; padding: 0; font-weight: bold; }
+        p { margin: 0; padding: 0; }
+        
+        .section-title {
+            text-transform: uppercase;
+            font-size: 11pt;
+            border-bottom: 1px solid #000;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            padding-bottom: 2px;
+        }
+        
+        .content-text {
+            font-size: 10.5pt;
+            line-height: 1.3;
+        }
+
+        /* Tighter spacing for breaks */
+        .content-text br {
+            display: block;
+            content: "";
+            margin-top: 4px;
+        }
+
+        /* Force standard PDF page size */
+        @page {
+            size: A4;
+            margin: 0.5in;
+        }
+
         @media print {
-            .no-print {
-                display: none;
-            }
-
-            body {
-                background-color: white;
-                padding: 0;
-            }
-
-            .page-container {
-                box-shadow: none;
+            .no-print { display: none; }
+            body { background-color: white; }
+            .page-container { 
+                box-shadow: none; 
+                margin: 0; 
+                padding: 0; 
                 max-width: 100%;
-                padding: 0;
             }
         }
     </style>
 </head>
-
-<body class="bg-gray-200 py-8 font-sans text-gray-900">
-
-    <!-- Download Button (Hidden when printing to PDF) -->
-    <div class="max-w-4xl mx-auto mb-4 text-right no-print">
-        <button onclick="window.print()"
-            class="bg-blue-600 text-white font-bold py-2 px-6 rounded shadow hover:bg-blue-700">
-            Download as PDF
-        </button>
+<body>
+    <div class="max-w-4xl mx-auto mt-4 mb-2 text-right no-print">
+        <button onclick="window.print()" class="bg-slate-800 text-white font-bold py-2 px-6 rounded shadow hover:bg-black transition text-sm">Download as PDF</button>
     </div>
 
-    <!-- Resume Container -->
-    <div class="page-container max-w-4xl mx-auto bg-white p-12 shadow-xl">
-
-        <!-- Header (Dynamic Data from MySQL) -->
-        <header class="text-center mb-6">
-            <h1 class="text-4xl font-bold text-gray-900">{{ user.full_name }}</h1>
-            <h2 class="text-xl font-medium mt-1">{{ user.target_job }}</h2>
-            <p class="text-sm mt-2 text-gray-700">
-                +91 9373670420 | Kolhapur, Maharashtra 416012 |
-                <a href="mailto:{{ user.email }}" class="text-blue-600 underline">{{ user.email }}</a> |
-                <a href="#" class="text-blue-600 underline">omlad30.github.io</a>
-            </p>
+    <div class="page-container">
+        <!-- HEADER -->
+        <header class="text-center mb-3">
+            <h1 class="text-2xl tracking-wide uppercase mb-1">{{ user.full_name }}</h1>
+            <div class="content-text flex flex-wrap justify-center gap-1.5 text-gray-800">
+                <span>{{ user.email }}</span>
+                {% if user.phone %}<span>| {{ user.phone }}</span>{% endif %}
+                {% if user.location %}<span>| {{ user.location }}</span>{% endif %}
+                {% if user.linkedin %}<span>| {{ user.linkedin | replace('https://', '') }}</span>{% endif %}
+                {% if user.github %}<span>| {{ user.github | replace('https://', '') }}</span>{% endif %}
+            </div>
         </header>
 
-        <!-- Professional Summary -->
-        <section class="mb-6">
-            <h3 class="text-lg font-bold text-gray-800 border-b-2 border-gray-400 mb-2 uppercase">Professional Summary
-            </h3>
-            <p class="text-sm leading-relaxed">
-                Computer Science Engineering student with a strong foundation in Java, Python, DBMS and web development.
-                Experienced in building full-stack web applications using React.js, Node.js, Express.js and MongoDB.
-                Passionate
-                about software development, problem-solving and learning modern technologies.
-            </p>
-        </section>
-
-        <!-- Education -->
-        <section class="mb-6">
-            <h3 class="text-lg font-bold text-gray-800 border-b-2 border-gray-400 mb-2 uppercase">Education</h3>
-
-            <div class="mb-3">
-                <div class="flex justify-between font-bold text-sm">
-                    <span>Bachelor in Computer Science Engineering (Pursuing)</span>
-                    <span>2024 – 2027 (Expected)</span>
-                </div>
-                <p class="text-sm">DYPSEM, Kolhapur | CGPA: 7.13/10</p>
-            </div>
-
-            <div>
-                <div class="flex justify-between font-bold text-sm">
-                    <span>Diploma in Computer Science Engineering</span>
-                    <span>2021 – 2024</span>
-                </div>
-                <p class="text-sm">Dr. D. Y. Patil Polytechnic, Kolhapur | Percentage: 75.83%</p>
+        <!-- PROFESSIONAL SUMMARY -->
+        {% if user.summary %}
+        <section>
+            <h3 class="section-title">Professional Summary</h3>
+            <div class="content-text text-justify">
+                {{ user.summary }}
             </div>
         </section>
+        {% endif %}
 
-        <!-- Technical Skills -->
-        <section class="mb-6">
-            <h3 class="text-lg font-bold text-gray-800 border-b-2 border-gray-400 mb-2 uppercase">Technical Skills</h3>
-            <ul class="text-sm space-y-1">
-                <li><span class="font-bold">Programming Languages:</span> Python, Java, JavaScript</li>
-                <li><span class="font-bold">Web Technologies:</span> HTML, CSS, React.js, Node.js, Express.js</li>
-                <li><span class="font-bold">Databases:</span> MySQL, MongoDB, Firebase</li>
-                <li><span class="font-bold">Concepts:</span> Data Structures and Algorithms (DSA), OOP, REST APIs,
-                    Microservices</li>
-            </ul>
-        </section>
-
-        <!-- Projects -->
-        <section class="mb-6">
-            <h3 class="text-lg font-bold text-gray-800 border-b-2 border-gray-400 mb-2 uppercase">Projects</h3>
-
-            <div class="mb-4">
-                <div class="font-bold text-sm">Civic Issue Reporter & Auto-Allocation System</div>
-                <div class="text-sm italic mb-1">Tech Stack: React.js, Node.js, Express.js, MongoDB, Firebase, Gemini AI
-                    API</div>
-                <ul class="list-disc list-inside text-sm space-y-1">
-                    <li>Full-stack system where Gemini AI categorizes civic complaints and routes them to the right
-                        authority</li>
-                    <li>Built REST APIs and a dashboard for tracking and resolving reported issues</li>
-                </ul>
+        <!-- EXPERIENCE -->
+        {% if user.experience %}
+        <section>
+            <h3 class="section-title">Experience & Projects</h3>
+            <div class="content-text">
+                {{ user.experience | replace('\n', '<br>') | safe }}
             </div>
         </section>
+        {% endif %}
 
+        <!-- EDUCATION -->
+        {% if user.education %}
+        <section>
+            <h3 class="section-title">Education</h3>
+            <div class="content-text">
+                {{ user.education | replace('\n', '<br>') | safe }}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- SKILLS -->
+        <section>
+            <h3 class="section-title">Technical & Soft Skills</h3>
+            <div class="content-text">
+                <p><strong>Technical Skills:</strong> {{ user.skills }}</p>
+                {% if user.soft_skills %}
+                <p class="mt-1"><strong>Soft Skills:</strong> {{ user.soft_skills }}</p>
+                {% endif %}
+            </div>
+        </section>
     </div>
 </body>
-
 </html>
