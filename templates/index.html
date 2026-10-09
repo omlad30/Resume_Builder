@@ -44,6 +44,8 @@
             
             <!-- LEFT: HERO MESSAGING -->
             <div class="lg:w-1/2 lg:sticky lg:top-32">
+                <div id="hero-messaging">
+
                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-blue-100 text-blue-700 text-xs font-bold mb-6 shadow-sm">
                     <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span> THE #1 AI RESUME BUILDER
                 </div>
@@ -77,11 +79,22 @@
                 </div>
             </div>
 
+                            </div>
+                <div id="live-preview-container" class="hidden lg:relative fixed inset-0 z-[100] lg:h-[800px] h-full w-full bg-white lg:rounded-2xl lg:shadow-2xl lg:border lg:border-slate-200 overflow-hidden lg:mb-10 flex flex-col">
+                    <div class="bg-slate-800 text-white text-xs font-bold px-4 py-2 flex justify-between items-center">
+                        <span><i class="fa-solid fa-eye text-blue-400 mr-2"></i> Live Preview</span>
+                        <button onclick="togglePreview()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <iframe id="preview-iframe" class="w-full flex-grow border-0 bg-white"></iframe>
+                </div>
             <!-- RIGHT: THE FORM -->
             <div class="lg:w-1/2 w-full" id="builder-form">
                 <div class="bg-white p-6 sm:p-10 rounded-2xl shadow-[0_20px_50px_-12px_rgba(0,0,0,0.1)] border border-slate-100 relative">
                     
-                    <h2 class="text-2xl font-black text-slate-900 mb-6">Enter Your Details</h2>
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-black text-slate-900">Enter Your Details</h2>
+                        <button type="button" onclick="togglePreview()" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold py-1.5 px-4 rounded-lg text-xs transition border border-indigo-200 shadow-sm"><i class="fa-solid fa-desktop mr-1"></i> Live Preview</button>
+                    </div>
 
                     <!-- AI AUTO FILL -->
                     <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-8">
@@ -100,31 +113,31 @@
                     </div>
 
                     <!-- THE FORM -->
-                    <form action="/" method="POST" enctype="multipart/form-data" class="space-y-5">
+                    <form action="{% if resume %}/edit_resume/{{ resume.id }}{% else %}/{% endif %}" method="POST" enctype="multipart/form-data" class="space-y-5">
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name *</label>
                                 <input type="text" name="full_name" required placeholder="e.g. Rahul Sharma"
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.full_name if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Target Job Title *</label>
-                                <input type="text" name="target_job" required placeholder="e.g. Software Engineer"
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                <input type="text" name="target_job" required placeholder="e.g. Full Stack Developer"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.target_job if resume else '' }}">
                             </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email *</label>
-                                <input type="email" name="email" required placeholder="name@example.com"
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                <input type="email" name="email" required placeholder="rahul@example.in"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.email if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Phone</label>
                                 <input type="text" name="phone" placeholder="+91 98765 43210"
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.phone if resume else '' }}">
                             </div>
                         </div>
 
@@ -132,48 +145,48 @@
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Location</label>
                                 <input type="text" name="location" placeholder="Bengaluru"
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.location if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">LinkedIn URL</label>
-                                <input type="text" name="linkedin" placeholder="linkedin.com/in/..."
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                <input type="text" name="linkedin" placeholder="linkedin.com/in/rahulsharma"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.linkedin if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">GitHub / Portfolio</label>
-                                <input type="text" name="github" placeholder="github.com/..."
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                <input type="text" name="github" placeholder="github.com/rahulsharma"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.github if resume else '' }}">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Professional Summary</label>
                             <textarea name="summary" rows="3" placeholder="A brief professional summary..."
-                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm"></textarea>
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">{{ resume.summary if resume else '' }}</textarea>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Experience & Projects</label>
                             <textarea name="experience" rows="4" placeholder="Software Engineer @ TechCorp (2020-Present)&#10;• Built a highly scalable backend..."
-                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm"></textarea>
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">{{ resume.experience if resume else '' }}</textarea>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Education</label>
                             <textarea name="education" rows="3" placeholder="B.Tech in Computer Science&#10;IIT Bombay (2016-2020)"
-                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm"></textarea>
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">{{ resume.education if resume else '' }}</textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Technical Skills</label>
                                 <input type="text" name="skills" placeholder="Python, React, AWS, Docker..."
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.skills if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Soft Skills</label>
                                 <input type="text" name="soft_skills" placeholder="Leadership, Agile, Communication..."
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.soft_skills if resume else '' }}">
                             </div>
                         </div>
 
@@ -230,7 +243,7 @@
                         </div>
 
                         <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 text-lg mt-6">
-                            Generate My Resume
+                            {% if resume %}Update My Resume{% else %}Generate My Resume{% endif %}
                         </button>
                     </form>
                 </div>
@@ -401,6 +414,66 @@
             });
         });
 
+        
+        let previewTimer;
+        function updatePreview() {
+            clearTimeout(previewTimer);
+            previewTimer = setTimeout(async () => {
+                const form = document.querySelector('form');
+                const formData = new FormData(form);
+                
+                try {
+                    const response = await fetch('/preview_resume', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const html = await response.text();
+                    const iframe = document.getElementById('preview-iframe');
+                    iframe.contentWindow.document.open();
+                    iframe.contentWindow.document.write(html);
+                    iframe.contentWindow.document.close();
+                } catch(e) {
+                    console.error("Preview failed", e);
+                }
+            }, 750);
+        }
+
+        function togglePreview() {
+            const preview = document.getElementById('live-preview-container');
+            const hero = document.getElementById('hero-messaging');
+            const isDesktop = window.innerWidth >= 1024;
+
+            if(!preview.classList.contains('hidden')) {
+                // Hide preview
+                preview.classList.add('hidden');
+                if(isDesktop) hero.classList.remove('hidden');
+                document.body.style.overflow = ''; // Restore mobile scrolling
+            } else {
+                // Show preview
+                preview.classList.remove('hidden');
+                if(isDesktop) hero.classList.add('hidden');
+                if(!isDesktop) document.body.style.overflow = 'hidden'; // Lock mobile scrolling
+                updatePreview();
+            }
+        }
+
+        // Attach listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const formInputs = document.querySelectorAll('form input, form textarea, form select');
+            formInputs.forEach(el => {
+                el.addEventListener('input', () => {
+                    if(!document.getElementById('live-preview-container').classList.contains('hidden')) {
+                        updatePreview();
+                    }
+                });
+            });
+            // If we're editing an existing resume, auto-show preview
+            if (document.querySelector('form').getAttribute('action').includes('edit_resume')) {
+                togglePreview();
+            }
+        });
+
+
         // AI Logic
         async function generateWithAI() {
             const rawText = document.getElementById('ai-input').value;
@@ -446,5 +519,11 @@
             }
         }
     </script>
+
+    <!-- MOBILE FLOATING PREVIEW BUTTON -->
+    <button onclick="togglePreview()" id="mobile-preview-btn" class="lg:hidden fixed bottom-6 right-6 z-50 bg-slate-900 text-white font-bold py-3 px-5 rounded-full shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-slate-700 flex items-center gap-2 transform transition hover:scale-105 active:scale-95 text-sm">
+        <i class="fa-solid fa-eye text-blue-400"></i> Live Preview
+    </button>
+
 </body>
 </html>

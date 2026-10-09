@@ -55,7 +55,10 @@
                 
                 <div class="flex gap-2">
                     <a href="{{ url_for('view_resume', resume_id=resume.id) }}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg text-center transition border border-slate-200 text-sm">
-                        View / Edit
+                        View
+                    </a>
+                    <a href="/edit_resume/{{ resume.id }}" class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg text-center transition border border-blue-200 text-sm">
+                        Edit
                     </a>
                     <form action="/delete_resume/{{ resume.id }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to permanently delete this resume?');">
                         <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-lg text-center transition border border-red-100 text-sm">
