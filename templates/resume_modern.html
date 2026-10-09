@@ -16,7 +16,7 @@
 </head>
 <body class="py-8 text-gray-800">
     <div class="max-w-4xl mx-auto mb-4 text-right no-print">
-        <button onclick="window.print()" class="bg-violet-600 text-white font-bold py-2 px-6 rounded shadow hover:bg-violet-700 transition">Download PDF</button>
+        <button onclick="downloadPDF()" class="bg-violet-600 text-white font-bold py-2 px-6 rounded shadow hover:bg-violet-700 transition">Download PDF</button>
     </div>
 
     <div class="page-container max-w-4xl mx-auto bg-white shadow-xl flex border-t-8 border-violet-600">
@@ -81,5 +81,19 @@
             {% endif %}
         </main>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        function downloadPDF() {
+            var element = document.querySelector('.page-container');
+            var opt = {
+              margin:       0,
+              filename:     '{{ user.full_name }}_Resume.pdf',
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2, useCORS: true },
+              jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
 </body>
 </html>
