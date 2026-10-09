@@ -188,6 +188,83 @@ def delete_resume(resume_id):
     db.session.commit()
     return redirect(url_for('dashboard'))
 
+@app.route('/edit_resume/<int:resume_id>', methods=['GET', 'POST'])
+@login_required
+def edit_resume(resume_id):
+    resume = Resume.query.get_or_404(resume_id)
+    if resume.user_id != current_user.id:
+        return "Unauthorized", 403
+        
+    if request.method == 'POST':
+        resume.full_name = request.form['full_name']
+        resume.email = request.form['email']
+        resume.target_job = request.form['target_job']
+        resume.template_choice = request.form.get('template_choice', 'classic')
+        resume.phone = request.form.get('phone', '')
+        resume.location = request.form.get('location', '')
+        resume.linkedin = request.form.get('linkedin', '')
+        resume.github = request.form.get('github', '')
+        resume.summary = request.form.get('summary', '')
+        resume.education = request.form.get('education', '')
+        resume.experience = request.form.get('experience', '')
+        resume.skills = request.form.get('skills', '')
+        
+        has_soft_skills = request.form.get('has_soft_skills')
+        resume.soft_skills = request.form.get('soft_skills', '') if has_soft_skills else ''
+        
+        if 'profile_pic' in request.files:
+            file = request.files['profile_pic']
+            if file and file.filename != '':
+                from werkzeug.utils import secure_filename
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(filepath)
+                resume.profile_pic = filepath
+                
+        db.session.commit()
+        return redirect(f'/resume/{resume.id}')
+        
+    return render_template('index.html', resume=resume)
+
+
+@app.route('/preview_resume', methods=['POST'])
+def preview_resume():
+    # Similar to home() but doesn't save to DB
+    user_data = {
+        'full_name': request.form.get('full_name', 'Your Name'),
+        'email': request.form.get('email', 'you@example.com'),
+        'target_job': request.form.get('target_job', 'Target Job'),
+        'phone': request.form.get('phone', ''),
+        'location': request.form.get('location', ''),
+        'linkedin': request.form.get('linkedin', ''),
+        'github': request.form.get('github', ''),
+        'summary': request.form.get('summary', ''),
+        'education': request.form.get('education', ''),
+        'experience': request.form.get('experience', ''),
+        'skills': request.form.get('skills', ''),
+        'soft_skills': request.form.get('soft_skills', ''),
+        'template_choice': request.form.get('template', 'classic')
+    }
+    
+    # Mock an object for Jinja
+    class MockUser:
+        def __init__(self, **entries):
+            self.__dict__.update(entries)
+    
+    mock_user = MockUser(**user_data)
+    
+    template_map = {
+        'classic': 'resume_classic.html',
+        'modern': 'resume_modern.html',
+        'minimalist': 'resume_minimalist.html',
+        'creative': 'resume_creative.html',
+        'photo': 'resume_photo.html'
+    }
+    
+    template_name = template_map.get(user_data['template_choice'], 'resume_classic.html')
+    return render_template(template_name, user=mock_user)
+
+
 # --- AI API ROUTE ---
 @app.route('/api/generate_resume', methods=['POST'])
 def generate_resume():
