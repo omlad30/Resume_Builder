@@ -54,7 +54,7 @@
                 <p class="text-slate-500 text-sm mb-6"><i class="fa-regular fa-clock mr-1"></i> ID: #{{ resume.id }}</p>
                 
                 <div class="flex gap-2">
-                    <a href="{{ url_for('view_resume', resume_id=resume.id) }}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg text-center transition border border-slate-200 text-sm">
+                    <a href="{{ url_for('resumes.view_resume', resume_id=resume.id) }}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2 px-4 rounded-lg text-center transition border border-slate-200 text-sm">
                         View
                     </a>
                     <a href="/edit_resume/{{ resume.id }}" class="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-2 px-4 rounded-lg text-center transition border border-blue-200 text-sm">

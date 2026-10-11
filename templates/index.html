@@ -96,8 +96,18 @@
                         <button type="button" onclick="togglePreview()" class="bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold py-1.5 px-4 rounded-lg text-xs transition border border-indigo-200 shadow-sm"><i class="fa-solid fa-desktop mr-1"></i> Live Preview</button>
                     </div>
 
-                    <!-- AI AUTO FILL -->
-                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-8">
+                    <!-- AI TOOLS BAR -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                        <button type="button" onclick="toggleAIAutoFill()" id="btn-toggle-autofill" class="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 text-blue-800 font-bold py-3 px-4 rounded-xl text-xs transition shadow-sm">
+                            <i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Auto-Fill with AI
+                        </button>
+                        <button type="button" onclick="openATSModal()" class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 border border-emerald-200 text-emerald-800 font-bold py-3 px-4 rounded-xl text-xs transition shadow-sm">
+                            <i class="fa-solid fa-bullseye text-emerald-600"></i> 🎯 ATS Score & JD Match
+                        </button>
+                    </div>
+
+                    <!-- AI AUTO FILL DRAWER -->
+                    <div id="ai-autofill-panel" class="hidden bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-8">
                         <div class="flex justify-between items-start mb-2">
                             <h3 class="font-bold text-blue-900 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Auto-Fill with AI</h3>
                             <span class="bg-blue-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">Fastest</span>
@@ -519,7 +529,161 @@
                 status.classList.add('hidden');
             }
         }
+
+        function toggleAIAutoFill() {
+            const panel = document.getElementById('ai-autofill-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        // --- ATS SCORE & JOB DESCRIPTION MATCHER ---
+        function openATSModal() {
+            document.getElementById('ats-modal').classList.remove('hidden');
+        }
+
+        function closeATSModal() {
+            document.getElementById('ats-modal').classList.add('hidden');
+        }
+
+        async function runATSAnalysis() {
+            const jd = document.getElementById('ats-jd-input').value.trim();
+            if(!jd) {
+                alert("Please paste a target Job Description to audit against.");
+                return;
+            }
+
+            // Collect current resume text from form
+            const name = document.querySelector('[name="full_name"]')?.value || '';
+            const job = document.querySelector('[name="target_job"]')?.value || '';
+            const summary = document.querySelector('[name="summary"]')?.value || '';
+            const exp = document.querySelector('[name="experience"]')?.value || '';
+            const edu = document.querySelector('[name="education"]')?.value || '';
+            const skills = document.querySelector('[name="skills"]')?.value || '';
+            const soft = document.querySelector('[name="soft_skills"]')?.value || '';
+
+            const resumeCombined = `
+Candidate: ${name}
+Target Role: ${job}
+Professional Summary: ${summary}
+Skills: ${skills} | Soft Skills: ${soft}
+Experience:
+${exp}
+Education:
+${edu}
+            `.trim();
+
+            if(!skills && !exp && !summary) {
+                alert("Please fill in some details in your resume form first (e.g. summary, skills, or experience).");
+                return;
+            }
+
+            const btn = document.getElementById('ats-analyze-btn');
+            const status = document.getElementById('ats-status');
+            const results = document.getElementById('ats-results');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            status.classList.remove('hidden');
+            results.classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/ats_score', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        resume_text: resumeCombined,
+                        job_description: jd
+                    })
+                });
+
+                const data = await response.json();
+                if(response.ok) {
+                    document.getElementById('ats-score-display').innerText = (data.score || 0) + '%';
+                    document.getElementById('ats-summary-text').innerText = data.summary || '';
+
+                    // Matched keywords
+                    const matchedDiv = document.getElementById('ats-matched-keywords');
+                    matchedDiv.innerHTML = (data.matched_keywords || []).map(k => 
+                        `<span class="bg-emerald-100 text-emerald-800 text-xs px-2.5 py-1 rounded-full font-semibold">${k}</span>`
+                    ).join('') || '<span class="text-xs text-slate-400">None detected</span>';
+
+                    // Missing keywords
+                    const missingDiv = document.getElementById('ats-missing-keywords');
+                    missingDiv.innerHTML = (data.missing_keywords || []).map(k => 
+                        `<span class="bg-rose-100 text-rose-800 text-xs px-2.5 py-1 rounded-full font-semibold">+ ${k}</span>`
+                    ).join('') || '<span class="text-xs text-slate-400">Great match! No critical keywords missing.</span>';
+
+                    // Recommendations
+                    const recsUl = document.getElementById('ats-recommendations');
+                    recsUl.innerHTML = (data.recommendations || []).map(r => 
+                        `<li class="flex items-start gap-2"><i class="fa-solid fa-arrow-right text-emerald-600 mt-1 text-xs"></i> <span>${r}</span></li>`
+                    ).join('');
+
+                    results.classList.remove('hidden');
+                } else {
+                    alert("ATS Audit Error: " + data.error);
+                }
+            } catch(err) {
+                console.error(err);
+                alert("Unable to reach ATS Audit service. Please check your network and API key.");
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                status.classList.add('hidden');
+            }
+        }
     </script>
+
+    <!-- ATS AUDIT MODAL -->
+    <div id="ats-modal" class="hidden fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white p-5 flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-black flex items-center gap-2"><i class="fa-solid fa-bullseye"></i> ATS Matcher & Keyword Auditor</h3>
+                    <p class="text-xs text-emerald-100 mt-0.5">Audit your resume against any target Job Description</p>
+                </div>
+                <button type="button" onclick="closeATSModal()" class="text-emerald-100 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-5">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Target Job Description (JD)</label>
+                    <textarea id="ats-jd-input" rows="4" class="w-full bg-slate-50 border border-slate-300 text-slate-900 px-3.5 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 placeholder-slate-400" placeholder="Paste the job requirements, qualifications, and role description here..."></textarea>
+                </div>
+
+                <button type="button" id="ats-analyze-btn" onclick="runATSAnalysis()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> Calculate ATS Score & Match Keywords
+                </button>
+                <p id="ats-status" class="hidden text-emerald-700 text-xs text-center font-bold bg-emerald-50 py-2.5 rounded-lg border border-emerald-200"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Analyzing keywords and computing ATS compatibility score with AI...</p>
+
+                <!-- RESULTS PANEL -->
+                <div id="ats-results" class="hidden space-y-5 border-t border-slate-200 pt-5">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 flex items-center gap-6">
+                        <div class="text-center">
+                            <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">ATS Score</div>
+                            <div id="ats-score-display" class="text-4xl font-black text-emerald-600 mt-1">0%</div>
+                        </div>
+                        <div class="border-l border-slate-200 pl-6 text-sm text-slate-600 leading-relaxed" id="ats-summary-text">
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-circle-check text-emerald-600"></i> Matched Keywords</h4>
+                        <div id="ats-matched-keywords" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-circle-exclamation text-rose-600"></i> Missing Critical Keywords</h4>
+                        <div id="ats-missing-keywords" class="flex flex-wrap gap-1.5"></div>
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5"><i class="fa-solid fa-lightbulb text-amber-500"></i> Recruiter Action Items</h4>
+                        <ul id="ats-recommendations" class="text-xs text-slate-700 space-y-1.5 bg-amber-50/50 border border-amber-200/60 p-4 rounded-xl"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- MOBILE FLOATING PREVIEW BUTTON -->
     <button onclick="togglePreview()" id="mobile-preview-btn" class="lg:hidden fixed bottom-6 right-6 z-50 bg-slate-900 text-white font-bold py-3 px-5 rounded-full shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-slate-700 flex items-center gap-2 transform transition hover:scale-105 active:scale-95 text-sm">
