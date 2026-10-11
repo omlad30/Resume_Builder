@@ -15,8 +15,18 @@
     </style>
 </head>
 <body class="py-8 text-gray-800">
-    <div class="max-w-4xl mx-auto mb-4 text-right no-print">
-        <button onclick="downloadPDF()" class="bg-indigo-600 text-white font-bold py-2 px-6 rounded shadow hover:bg-indigo-700 transition">Download PDF</button>
+    <div class="max-w-4xl mx-auto mb-4 flex items-center justify-between no-print px-2">
+        <a href="/dashboard" class="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 py-1.5 px-3 rounded shadow-sm hover:bg-gray-50 transition">
+            ← Back to Dashboard
+        </a>
+        <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="text-sm font-semibold text-gray-700 bg-white border border-gray-300 py-1.5 px-3 rounded shadow-sm hover:bg-gray-50 transition">
+                🖨️ Print
+            </button>
+            <button onclick="downloadPDF()" class="text-sm font-bold text-white bg-indigo-600 py-1.5 px-4 rounded shadow hover:bg-indigo-700 transition">
+                ⬇️ Download as PDF
+            </button>
+        </div>
     </div>
 
     <div class="page-container max-w-4xl mx-auto bg-white shadow-xl overflow-hidden">
