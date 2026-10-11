@@ -1,8 +1,8 @@
 # ✨ ProResume Builder
 
-An AI-ready, highly professional Resume Builder web application built with **Python (Flask)**, **SQLAlchemy**, and **Tailwind CSS**. 
+An AI-powered, highly professional Resume Builder web application built with **Python (Flask)**, **SQLAlchemy**, and **Tailwind CSS**. 
 
-ProResume allows users to generate beautiful, ATS-optimized resumes in seconds. Users simply fill out a clean, responsive web form, optionally upload a profile picture, and choose from 5 premium design templates. The backend instantly generates a pixel-perfect HTML resume that can be downloaded as a high-quality PDF.
+ProResume allows users to generate beautiful, ATS-optimized resumes in seconds. Users can fill out a clean web form, optionally upload a profile picture, or use the **AI Assistant** (powered by Groq) to convert raw unstructured text into polished resume sections. Choose from 5 premium templates and export pixel-perfect PDFs instantly.
 
 ## 🚀 Features
 
@@ -12,17 +12,19 @@ ProResume allows users to generate beautiful, ATS-optimized resumes in seconds. 
   - ✨ **Minimalist:** Elegant typography focusing on whitespace and readability.
   - 🎨 **Creative:** Vibrant gradient headers and modern badges.
   - 📸 **Photo ATS:** A modern layout that seamlessly integrates a user profile photo.
-- **Image Uploads:** Secure backend file handling for profile pictures (up to 3MB).
-- **Responsive UI:** A stunning Glassmorphism landing page that looks perfect on both mobile and desktop.
-- **Dynamic Content:** Automatically formats multi-line text (for Education and Experience) and generates skill badges.
-- **AI-Ready:** UI foundation laid out for Google Gemini AI integration to auto-generate professional summaries.
+- **⚡ AI Resume Generator:** Powered by **Groq (`qwen/qwen3.8-27b`)** to parse rough summaries or job histories into ATS-optimized bullet points, summaries, and skills.
+- **📥 Direct PDF Export:** Integrated `html2pdf.js` for 1-click client-side PDF downloads, alongside browser print support.
+- **🔒 Authentication & Dashboard:** User registration, login, and private dashboard to manage, edit, and re-download saved resumes.
+- **📁 Image Uploads:** Secure backend file handling for profile pictures (up to 3MB).
+- **💾 Flexible Database:** Defaults to zero-setup **SQLite** out of the box, with full support for **MySQL** via `.env`.
 
 ## 🛠️ Tech Stack
 
-- **Backend:** Python, Flask, Flask-SQLAlchemy
-- **Database:** MySQL
-- **Frontend:** HTML5, Tailwind CSS, FontAwesome, Google Fonts
-- **File Handling:** Werkzeug
+- **Backend:** Python, Flask, Flask-SQLAlchemy, Flask-Login
+- **AI Engine:** Groq API (`qwen/qwen3.8-27b`)
+- **Database:** SQLite (default) or MySQL
+- **Frontend:** HTML5, Tailwind CSS, FontAwesome, Google Fonts, `html2pdf.js`
+- **Environment Management:** `python-dotenv`
 
 ## 💻 How to Run Locally
 
@@ -36,16 +38,28 @@ ProResume allows users to generate beautiful, ATS-optimized resumes in seconds. 
    ```bash
    # On Windows
    .\venv\Scripts\activate
+   # On macOS/Linux
+   source venv/bin/activate
    ```
 
 3. **Install dependencies:**
-   Make sure you have Flask, SQLAlchemy, and MySQL-Connector installed.
    ```bash
-   pip install Flask Flask-SQLAlchemy mysql-connector-python Werkzeug
+   pip install -r requirements.txt
    ```
 
-4. **Set up the database:**
-   Ensure MySQL is running on your machine with a database named `resume_builder_db` (or update the URI in `app.py`). 
+4. **Configure environment variables:**
+   Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` to add your keys:
+   ```env
+   # Leave blank to use SQLite, or set your MySQL URI
+   DATABASE_URL=sqlite:///resume_builder.db
+
+   # (Optional) Get a free Groq API key from https://console.groq.com
+   GROQ_API_KEY=your_groq_api_key_here
+   ```
 
 5. **Run the application:**
    ```bash
@@ -60,3 +74,4 @@ Contributions, issues, and feature requests are welcome!
 
 ## 📝 License
 This project is open-source and available under the [MIT License](LICENSE).
+
