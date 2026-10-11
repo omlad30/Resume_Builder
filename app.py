@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, redirect, jsonify, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 import os
@@ -7,19 +7,28 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from groq import Groq
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 
 # --- GROQ AI SETUP ---
-GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '')
-groq_client = Groq(api_key=GROQ_API_KEY)
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY', '').strip()
+groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
 
 # --- DATABASE CONFIGURATION ---
-app.config['SECRET_KEY'] = 'a_very_secret_key_for_sessions'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost/resume_builder_db'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a_very_secret_key_for_sessions')
+# Flexible DB: Uses DATABASE_URL from .env, or falls back to SQLite for zero-setup local dev
+db_url = os.environ.get('DATABASE_URL') or os.environ.get('SQLALCHEMY_DATABASE_URI')
+if not db_url:
+    db_url = 'sqlite:///resume_builder.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 3 * 1024 * 1024  # 3 MB max limit
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 db = SQLAlchemy(app)
 
 # --- LOGIN SETUP ---
@@ -43,7 +52,7 @@ class Resume(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
     full_name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(100), nullable=False)
     target_job = db.Column(db.String(100))
     template_choice = db.Column(db.String(50), default="classic")
     phone = db.Column(db.String(20))
@@ -268,8 +277,13 @@ def preview_resume():
 # --- AI API ROUTE ---
 @app.route('/api/generate_resume', methods=['POST'])
 def generate_resume():
+    if not groq_client:
+        return jsonify({
+            'error': 'GROQ_API_KEY is not configured. Please add GROQ_API_KEY to your .env file to use the AI writer.'
+        }), 400
+
     data = request.json
-    raw_text = data.get('raw_text', '')
+    raw_text = data.get('raw_text', '') if data else ''
     
     if not raw_text:
         return jsonify({'error': 'No text provided'}), 400
@@ -307,6 +321,6 @@ def generate_resume():
 # --- START THE SERVER ---
 if __name__ == '__main__':
     with app.app_context():
-        db.drop_all() 
+        # db.drop_all() # Commented out to persist saved users and resumes across server restarts
         db.create_all()
     app.run(debug=True)
