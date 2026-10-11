@@ -26,33 +26,40 @@
             <p class="text-slate-500 mt-2 font-medium">Join to save and manage your resumes</p>
         </div>
 
-        {% with messages = get_flashed_messages() %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for message in messages %}
-                    <div class="bg-red-50 text-red-600 px-4 py-3 rounded-lg text-sm font-semibold mb-6 border border-red-100 flex items-center gap-2">
-                        <i class="fa-solid fa-circle-exclamation"></i> {{ message }}
+                {% for category, message in messages %}
+                    <div class="{% if category == 'success' %}bg-green-50 text-green-700 border-green-200{% else %}bg-red-50 text-red-600 border-red-100{% endif %} px-4 py-3 rounded-lg text-sm font-semibold mb-6 border flex items-center gap-2">
+                        <i class="fa-solid {% if category == 'success' %}fa-circle-check{% else %}fa-circle-exclamation{% endif %}"></i> {{ message }}
                     </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
 
         <form action="{{ url_for('signup', next=request.args.get('next')) }}" method="POST" class="space-y-4">
+            {{ form.hidden_tag() }}
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name</label>
-                <input type="text" name="name" required placeholder="John Doe"
-                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                {{ form.name(class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm", placeholder="John Doe") }}
+                {% for error in form.name.errors %}
+                    <p class="text-xs text-red-600 mt-1 font-semibold">{{ error }}</p>
+                {% endfor %}
             </div>
 
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email</label>
-                <input type="email" name="email" required placeholder="rahul@example.in"
-                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                {{ form.email(class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm", placeholder="rahul@example.in") }}
+                {% for error in form.email.errors %}
+                    <p class="text-xs text-red-600 mt-1 font-semibold">{{ error }}</p>
+                {% endfor %}
             </div>
             
             <div>
                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Password</label>
-                <input type="password" name="password" required placeholder="••••••••"
-                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">
+                {{ form.password(class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm", placeholder="••••••••") }}
+                {% for error in form.password.errors %}
+                    <p class="text-xs text-red-600 mt-1 font-semibold">{{ error }}</p>
+                {% endfor %}
             </div>
             
             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition transform hover:-translate-y-0.5 text-lg mt-6">

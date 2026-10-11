@@ -114,6 +114,7 @@
 
                     <!-- THE FORM -->
                     <form action="{% if resume %}/edit_resume/{{ resume.id }}{% else %}/{% endif %}" method="POST" enctype="multipart/form-data" class="space-y-5">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
