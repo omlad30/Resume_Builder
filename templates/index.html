@@ -107,19 +107,24 @@
                     </div>
 
                     <!-- AI AUTO FILL DRAWER -->
-                    <div id="ai-autofill-panel" class="hidden bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-xl p-5 mb-8">
+                    <div id="ai-autofill-panel" class="hidden bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5 mb-8 shadow-sm">
                         <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-bold text-blue-900 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Auto-Fill with AI</h3>
+                            <h3 class="font-bold text-blue-900 flex items-center gap-2"><i class="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Auto-Fill with AI / Smart Parser</h3>
                             <span class="bg-blue-600 text-white text-[10px] uppercase font-bold px-2 py-0.5 rounded-full tracking-wider">Fastest</span>
                         </div>
-                        <p class="text-xs text-blue-700/80 mb-3">Paste your messy notes, job description, or old resume here. We'll instantly format it for you.</p>
+                        <p class="text-xs text-blue-700/80 mb-3">Paste your raw notes, LinkedIn profile, or resume text. Works instantly with offline neural parsing or Groq AI.</p>
                         
-                        <textarea id="ai-input" rows="3" class="w-full bg-white border border-blue-200 text-slate-800 px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 text-sm placeholder-slate-400 shadow-sm" placeholder="Paste your text here..."></textarea>
+                        <textarea id="ai-input" rows="4" class="w-full bg-white border border-blue-200 text-slate-800 px-3 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 text-sm placeholder-slate-400 shadow-sm" placeholder="Paste your unformatted resume or profile here..."></textarea>
                         
-                        <button type="button" id="ai-button" onclick="generateWithAI()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2.5 rounded-lg transition shadow-md flex items-center justify-center gap-2">
-                            Extract & Fill Form
-                        </button>
-                        <p id="ai-status" class="text-blue-600 text-xs mt-3 hidden text-center font-bold bg-blue-100 py-2 rounded-md"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> AI is processing your text...</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <button type="button" id="ai-button" onclick="generateWithAI()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2.5 px-4 rounded-lg transition shadow flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Extract & Fill Form
+                            </button>
+                            <button type="button" onclick="loadSampleResume()" class="bg-white hover:bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold py-2.5 px-4 rounded-lg transition shadow-sm flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-file-invoice"></i> Load Om Lad (Tech Resume)
+                            </button>
+                        </div>
+                        <p id="ai-status" class="text-blue-600 text-xs mt-3 hidden text-center font-bold bg-blue-100 py-2 rounded-md"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Analyzing and formatting resume sections...</p>
                     </div>
 
                     <!-- THE FORM -->
@@ -129,12 +134,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Full Name *</label>
-                                <input type="text" name="full_name" required placeholder="e.g. Rahul Sharma"
+                                <input type="text" name="full_name" required placeholder="e.g. Om Lad"
                                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.full_name if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Target Job Title *</label>
-                                <input type="text" name="target_job" required placeholder="e.g. Full Stack Developer"
+                                <input type="text" name="target_job" required placeholder="e.g. Software Developer"
                                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.target_job if resume else '' }}">
                             </div>
                         </div>
@@ -142,12 +147,12 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Email *</label>
-                                <input type="email" name="email" required placeholder="rahul@example.in"
+                                <input type="email" name="email" required placeholder="ladom3003@gmail.com"
                                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.email if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Phone</label>
-                                <input type="text" name="phone" placeholder="+91 98765 43210"
+                                <input type="text" name="phone" placeholder="+91 9373670420"
                                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.phone if resume else '' }}">
                             </div>
                         </div>
@@ -155,79 +160,93 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Location</label>
-                                <input type="text" name="location" placeholder="Bengaluru"
+                                <input type="text" name="location" placeholder="Kolhapur, Maharashtra 416012"
                                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.location if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">LinkedIn URL</label>
-                                <input type="text" name="linkedin" placeholder="linkedin.com/in/rahulsharma"
+                                <input type="text" name="linkedin" placeholder="linkedin.com/in/om-lad-ba0306325"
                                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.linkedin if resume else '' }}">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">GitHub / Portfolio</label>
-                                <input type="text" name="github" placeholder="github.com/rahulsharma"
+                                <input type="text" name="github" placeholder="omlad30.github.io | github.com/omlad30"
                                     class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.github if resume else '' }}">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Professional Summary</label>
-                            <textarea name="summary" rows="3" placeholder="A brief professional summary..."
-                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">{{ resume.summary if resume else '' }}</textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Experience & Projects</label>
-                            <textarea name="experience" rows="4" placeholder="Software Engineer @ TechCorp (2020-Present)&#10;• Built a highly scalable backend..."
-                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">{{ resume.experience if resume else '' }}</textarea>
+                            <textarea name="summary" rows="3" placeholder="Computer Science Engineering student with strong foundation in Java, Python, DBMS and web development..."
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm leading-relaxed">{{ resume.summary if resume else '' }}</textarea>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Education</label>
-                            <textarea name="education" rows="3" placeholder="B.Tech in Computer Science&#10;IIT Bombay (2016-2020)"
-                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm">{{ resume.education if resume else '' }}</textarea>
+                            <textarea name="education" rows="3" placeholder="Bachelor in Computer Science Engineering (Pursuing) 2024 – 2027 (Expected)&#10;DYPSEM, Kolhapur | CGPA: 7.13/10&#10;Diploma in Computer Science Engineering 2021 – 2024&#10;Dr. D. Y. Patil Polytechnic, Kolhapur | Percentage: 75.83%"
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm font-mono text-xs leading-relaxed">{{ resume.education if resume else '' }}</textarea>
+                            <p class="text-[11px] text-slate-400 mt-1">Tip: Put Degree & Year on first line, Institute & Grade on next line.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Technical Skills</label>
+                            <textarea name="skills" rows="3" placeholder="Programming Languages: Python, Java, JavaScript&#10;Web Technologies: HTML, CSS, React.js, Node.js, Express.js&#10;Databases: MySQL, MongoDB, Firebase&#10;Version Control: Git, GitHub&#10;Concepts: Data Structures and Algorithms (DSA), OOP, REST APIs"
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm leading-relaxed">{{ resume.skills if resume else '' }}</textarea>
+                            <p class="text-[11px] text-slate-400 mt-1">Tip: You can categorize skills like "Category: Skill1, Skill2" for a sleek ATS look.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Projects</label>
+                            <textarea name="projects" rows="4" placeholder="Civic Issue Reporter & Auto-Allocation System&#10;Tech Stack: React.js, Node.js, Express.js, MongoDB, Firebase, Gemini AI API&#10;• Full-stack system where Gemini AI categorizes civic complaints and routes them to the right authority&#10;• Built REST APIs and a dashboard for tracking and resolving reported issues&#10;&#10;AssignGuard – AI-Powered Assignment Management Platform | Live Demo | GitHub&#10;Tech Stack: React.js, Node.js, Express.js, MongoDB, Firebase, Gemini AI API, Vercel&#10;• Individually built and deployed on Vercel platform with role-based grading&#10;• Detects AI-written text with Gemini and plagiarism in PDF/DOCX files"
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm leading-relaxed">{{ resume.projects if resume else '' }}</textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Internships & Work Experience</label>
+                            <textarea name="experience" rows="3" placeholder="Data Analytics Job Simulation – Deloitte (Forage) | Virtual August 2026&#10;• Completed practical tasks in data analysis and forensic technology&#10;&#10;Ethical Hacking Intern – BITS Techno June 2023 – July 2023&#10;• Successfully completed the ethical hacking internship (7 June – 22 July 2023)"
+                                class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm leading-relaxed">{{ resume.experience if resume else '' }}</textarea>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Technical Skills</label>
-                                <input type="text" name="skills" placeholder="Python, React, AWS, Docker..."
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.skills if resume else '' }}">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Certifications and Achievements</label>
+                                <textarea name="certifications" rows="3" placeholder="• Object-Oriented Programming – NPTEL&#10;• Artificial Intelligence Fundamentals – IBM SkillsBuild&#10;• Build and Deploy AI Apps with Google AI Studio – GUVI&#10;• Top 10 team out of 300+ in National Level Hackathon"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm leading-relaxed">{{ resume.certifications if resume else '' }}</textarea>
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Soft Skills</label>
-                                <input type="text" name="soft_skills" placeholder="Leadership, Agile, Communication..."
-                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm" value="{{ resume.soft_skills if resume else '' }}">
+                                <textarea name="soft_skills" rows="3" placeholder="Teamwork | Problem Solving | Time Management | Collaboration | Communication"
+                                    class="w-full bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition text-sm leading-relaxed">{{ resume.soft_skills if resume else '' }}</textarea>
                             </div>
                         </div>
 
                         <!-- Template Selector -->
                         <div class="pt-4 border-t border-slate-100">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Choose Your Design</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Choose Your Resume Design</label>
                             <div class="grid grid-cols-2 gap-3">
                                 <label class="cursor-pointer">
-                                    <input type="radio" name="template" value="classic" class="peer sr-only" checked>
+                                    <input type="radio" name="template_choice" value="classic" class="peer sr-only" {% if not resume or resume.template_choice == 'classic' %}checked{% endif %}>
                                     <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
-                                        <div class="font-bold text-slate-800 text-sm">The Classic</div>
-                                        <div class="text-xs text-slate-500">Standard ATS Format</div>
+                                        <div class="font-bold text-slate-800 text-sm">ATS Tech (Word Style)</div>
+                                        <div class="text-xs text-slate-500">Standard Single Page ATS</div>
                                     </div>
                                 </label>
                                 <label class="cursor-pointer">
-                                    <input type="radio" name="template" value="modern" class="peer sr-only">
+                                    <input type="radio" name="template_choice" value="modern" class="peer sr-only" {% if resume and resume.template_choice == 'modern' %}checked{% endif %}>
                                     <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
                                         <div class="font-bold text-slate-800 text-sm">Modern</div>
                                         <div class="text-xs text-slate-500">2-Column Layout</div>
                                     </div>
                                 </label>
                                 <label class="cursor-pointer">
-                                    <input type="radio" name="template" value="minimalist" class="peer sr-only">
+                                    <input type="radio" name="template_choice" value="minimalist" class="peer sr-only" {% if resume and resume.template_choice == 'minimalist' %}checked{% endif %}>
                                     <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
                                         <div class="font-bold text-slate-800 text-sm">Minimalist</div>
                                         <div class="text-xs text-slate-500">Clean & Simple</div>
                                     </div>
                                 </label>
                                 <label class="cursor-pointer">
-                                    <input type="radio" name="template" value="creative" class="peer sr-only">
+                                    <input type="radio" name="template_choice" value="creative" class="peer sr-only" {% if resume and resume.template_choice == 'creative' %}checked{% endif %}>
                                     <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
                                         <div class="font-bold text-slate-800 text-sm">Creative</div>
                                         <div class="text-xs text-slate-500">Vibrant Header</div>
@@ -239,7 +258,7 @@
                         <!-- Add Photo Template separately due to file upload -->
                         <div class="mt-3">
                             <label class="cursor-pointer">
-                                <input type="radio" name="template" value="photo" class="peer sr-only" id="photo-radio">
+                                <input type="radio" name="template_choice" value="photo" class="peer sr-only" id="photo-radio" {% if resume and resume.template_choice == 'photo' %}checked{% endif %}>
                                 <div class="text-center p-3 rounded-lg border-2 border-slate-200 bg-white peer-checked:border-blue-600 peer-checked:bg-blue-50 hover:bg-slate-50 transition">
                                     <div class="font-bold text-slate-800 text-sm"><i class="fa-solid fa-camera mr-1 text-slate-400"></i> Photo Resume</div>
                                     <div class="text-xs text-slate-500">Include Profile Picture</div>
@@ -248,9 +267,9 @@
                         </div>
 
                         <!-- Hidden File Input for Photo Template -->
-                        <div id="photo-upload-section" class="hidden mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                        <div id="photo-upload-section" class="{% if not resume or resume.template_choice != 'photo' %}hidden{% endif %} mt-3 p-4 bg-slate-50 rounded-lg border border-slate-200">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Upload Profile Photo (Max 3MB)</label>
-                            <input type="file" name="profile_photo" accept="image/*" class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition">
+                            <input type="file" name="profile_pic" accept="image/*" class="w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200 transition">
                         </div>
 
                         <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl shadow-lg transition transform hover:-translate-y-0.5 text-lg mt-6">
@@ -413,19 +432,19 @@
         // Photo upload toggle logic
         const photoRadio = document.getElementById('photo-radio');
         const photoSection = document.getElementById('photo-upload-section');
-        const allRadios = document.querySelectorAll('input[name="template"]');
+        const allRadios = document.querySelectorAll('input[name="template_choice"], input[name="template"]');
 
         allRadios.forEach(radio => {
             radio.addEventListener('change', () => {
-                if (photoRadio.checked) {
+                if (photoRadio && photoRadio.checked) {
                     photoSection.classList.remove('hidden');
-                } else {
+                } else if (photoSection) {
                     photoSection.classList.add('hidden');
                 }
+                updatePreview();
             });
         });
 
-        
         let previewTimer;
         function updatePreview() {
             clearTimeout(previewTimer);
@@ -440,13 +459,15 @@
                     });
                     const html = await response.text();
                     const iframe = document.getElementById('preview-iframe');
-                    iframe.contentWindow.document.open();
-                    iframe.contentWindow.document.write(html);
-                    iframe.contentWindow.document.close();
+                    if (iframe && iframe.contentWindow) {
+                        iframe.contentWindow.document.open();
+                        iframe.contentWindow.document.write(html);
+                        iframe.contentWindow.document.close();
+                    }
                 } catch(e) {
                     console.error("Preview failed", e);
                 }
-            }, 750);
+            }, 500);
         }
 
         function togglePreview() {
@@ -457,12 +478,12 @@
             if(!preview.classList.contains('hidden')) {
                 // Hide preview
                 preview.classList.add('hidden');
-                if(isDesktop) hero.classList.remove('hidden');
+                if(isDesktop && hero) hero.classList.remove('hidden');
                 document.body.style.overflow = ''; // Restore mobile scrolling
             } else {
                 // Show preview
                 preview.classList.remove('hidden');
-                if(isDesktop) hero.classList.add('hidden');
+                if(isDesktop && hero) hero.classList.add('hidden');
                 if(!isDesktop) document.body.style.overflow = 'hidden'; // Lock mobile scrolling
                 updatePreview();
             }
@@ -479,11 +500,65 @@
                 });
             });
             // If we're editing an existing resume, auto-show preview
-            if (document.querySelector('form').getAttribute('action').includes('edit_resume')) {
+            const form = document.querySelector('form');
+            if (form && form.getAttribute('action') && form.getAttribute('action').includes('edit_resume')) {
                 togglePreview();
             }
         });
 
+        // Load Om Lad sample resume directly
+        function loadSampleResume() {
+            const sampleText = `Om Lad
+Software Developer
++91 9373670420 | Kolhapur, Maharashtra 416012 | ladom3003@gmail.com
+omlad30.github.io | linkedin.com/in/om-lad-ba0306325 | github.com/omlad30
+
+PROFESSIONAL SUMMARY
+Computer Science Engineering student with a strong foundation in Java, Python, DBMS and web development. Experienced in building full-stack web applications using React.js, Node.js, Express.js and MongoDB. Passionate about software development, problem-solving and learning modern technologies.
+
+EDUCATION
+Bachelor in Computer Science Engineering (Pursuing) 2024 – 2027 (Expected)
+DYPSEM, Kolhapur | CGPA: 7.13/10
+Diploma in Computer Science Engineering 2021 – 2024
+Dr. D. Y. Patil Polytechnic, Kolhapur | Percentage: 75.83%
+
+TECHNICAL SKILLS
+Programming Languages: Python, Java, JavaScript
+Web Technologies: HTML, CSS, React.js, Node.js, Express.js
+Databases: MySQL, MongoDB, Firebase
+Version Control: Git, GitHub
+Concepts: Data Structures and Algorithms (DSA), OOP, REST APIs, Microservices, SDLC, Agile Methodologies, Debugging
+
+PROJECTS
+Civic Issue Reporter & Auto-Allocation System
+Tech Stack: React.js, Node.js, Express.js, MongoDB, Firebase, Gemini AI API
+• Full-stack system where Gemini AI categorizes civic complaints and routes them to the right authority
+• Built REST APIs and a dashboard for tracking and resolving reported issues
+
+AssignGuard – AI-Powered Assignment Management Platform | Live Demo | GitHub
+Tech Stack: React.js, Node.js, Express.js, MongoDB, Firebase, Gemini AI API, Vercel
+• Individually built and deployed on Vercel a platform that streamlines role-based submission and grading
+• Detects AI-written text with Gemini and plagiarism in PDF/DOCX files using TF-IDF and Cosine Similarity
+
+INTERNSHIPS
+Data Analytics Job Simulation – Deloitte (Forage) | Virtual August 2026
+• Completed practical tasks in data analysis and forensic technology
+Ethical Hacking Intern – BITS Techno June 2023 – July 2023
+• Successfully completed the ethical hacking internship (7 June – 22 July 2023)
+
+CERTIFICATIONS AND ACHIEVEMENTS
+• Object-Oriented Programming – NPTEL
+• Artificial Intelligence Fundamentals – IBM SkillsBuild
+• Build and Deploy AI Apps with Google AI Studio – GUVI (HCL)
+• Top 10 team out of 300+ in a National Level Hackathon at DYPSEM
+• Participant, 40-hour Hackathon organized by SGU
+
+SOFT SKILLS
+Teamwork | Problem Solving | Time Management | Collaboration | Communication`;
+
+            document.getElementById('ai-input').value = sampleText;
+            generateWithAI();
+        }
 
         // AI Logic
         async function generateWithAI() {
@@ -510,23 +585,47 @@
                 const data = await response.json();
                 
                 if(response.ok) {
-                    if(data.summary) document.getElementsByName('summary')[0].value = data.summary;
-                    if(data.experience) document.getElementsByName('experience')[0].value = data.experience;
-                    if(data.education) document.getElementsByName('education')[0].value = data.education;
-                    if(data.skills) document.getElementsByName('skills')[0].value = data.skills;
-                    if(data.soft_skills) document.getElementsByName('soft_skills')[0].value = data.soft_skills;
+                    const setVal = (name, val) => {
+                        const el = document.querySelector(`[name="${name}"]`);
+                        if (el && val !== undefined && val !== null) el.value = val;
+                    };
+
+                    setVal('full_name', data.full_name);
+                    setVal('target_job', data.target_job);
+                    setVal('email', data.email);
+                    setVal('phone', data.phone);
+                    setVal('location', data.location);
+                    setVal('linkedin', data.linkedin);
+                    setVal('github', data.github);
+                    setVal('summary', data.summary);
+                    setVal('education', data.education);
+                    setVal('experience', data.experience);
+                    setVal('projects', data.projects);
+                    setVal('certifications', data.certifications);
+                    setVal('skills', data.skills);
+                    setVal('soft_skills', data.soft_skills);
                     
-                    alert("✨ AI Magic Complete! Review your filled form below.");
+                    updatePreview();
+                    
+                    // Show confirmation in status box
+                    status.innerHTML = '<span class="text-emerald-700 font-bold"><i class="fa-solid fa-check-circle mr-1"></i> Form successfully filled with all sections! Check your details below.</span>';
+                    status.classList.remove('hidden', 'text-blue-600', 'bg-blue-100');
+                    status.classList.add('bg-emerald-50', 'border', 'border-emerald-200');
+                    setTimeout(() => {
+                        status.classList.add('hidden');
+                        status.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Analyzing and formatting resume sections...';
+                        status.classList.remove('bg-emerald-50', 'border', 'border-emerald-200');
+                        status.classList.add('text-blue-600', 'bg-blue-100');
+                    }, 4000);
                 } else {
-                    alert("Error: " + data.error);
+                    alert("Error: " + (data.error || 'Failed to process text'));
                 }
             } catch(err) {
                 console.error(err);
-                alert("Something went wrong connecting to the AI.");
+                alert("Something went wrong processing your resume.");
             } finally {
                 btn.disabled = false;
                 btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                status.classList.add('hidden');
             }
         }
 
@@ -559,19 +658,25 @@
             const edu = document.querySelector('[name="education"]')?.value || '';
             const skills = document.querySelector('[name="skills"]')?.value || '';
             const soft = document.querySelector('[name="soft_skills"]')?.value || '';
+            const projects = document.querySelector('[name="projects"]')?.value || '';
+            const certs = document.querySelector('[name="certifications"]')?.value || '';
 
             const resumeCombined = `
 Candidate: ${name}
 Target Role: ${job}
 Professional Summary: ${summary}
 Skills: ${skills} | Soft Skills: ${soft}
-Experience:
+Projects:
+${projects}
+Experience & Internships:
 ${exp}
 Education:
 ${edu}
+Certifications:
+${certs}
             `.trim();
 
-            if(!skills && !exp && !summary) {
+            if(!skills && !exp && !summary && !projects) {
                 alert("Please fill in some details in your resume form first (e.g. summary, skills, or experience).");
                 return;
             }

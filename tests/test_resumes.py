@@ -72,3 +72,52 @@ def test_ai_generate_validation(client):
     res = client.post('/api/generate_resume', json={})
     assert res.status_code == 400
     assert b'No text provided' in res.data
+
+def test_ai_generate_success_with_extraction(client):
+    """Test AI resume generator parses unformatted text successfully without 400 error."""
+    raw_sample = """Om Lad
+Software Developer
++91 9373670420 | Kolhapur, Maharashtra 416012 | ladom3003@gmail.com
+omlad30.github.io | linkedin.com/in/om-lad-ba0306325 | github.com/omlad30
+
+PROFESSIONAL SUMMARY
+Computer Science Engineering student experienced in React.js and Python.
+
+EDUCATION
+Bachelor in Computer Science Engineering (Pursuing) 2024 – 2027
+DYPSEM, Kolhapur | CGPA: 7.13/10
+
+TECHNICAL SKILLS
+Programming Languages: Python, Java, JavaScript
+Web Technologies: React.js, Node.js
+
+PROJECTS
+Civic Issue Reporter & Auto-Allocation System
+Tech Stack: React.js, Node.js
+• Built REST APIs and full-stack system
+
+CERTIFICATIONS AND ACHIEVEMENTS
+• Object-Oriented Programming – NPTEL
+"""
+    res = client.post('/api/generate_resume', json={'raw_text': raw_sample})
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data['full_name'] == 'Om Lad'
+    assert data['target_job'] == 'Software Developer'
+    assert data['email'] == 'ladom3003@gmail.com'
+    assert 'React.js' in data['skills']
+    assert 'Civic Issue Reporter' in data['projects']
+
+def test_ats_score_success(client):
+    """Test ATS score endpoint computes match score and recommendations."""
+    res = client.post('/api/ats_score', json={
+        'resume_text': 'Software Developer with Python, React, MySQL, Git',
+        'job_description': 'Looking for a Software Engineer skilled in Python, React, and SQL.'
+    })
+    assert res.status_code == 200
+    data = res.get_json()
+    assert 'score' in data
+    assert data['score'] > 0
+    assert 'matched_keywords' in data
+    assert 'recommendations' in data
+

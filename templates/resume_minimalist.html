@@ -5,91 +5,190 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ user.full_name }} - Minimalist Resume</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f3f4f6; }
+        body { font-family: 'Space Grotesk', sans-serif; background-color: #cbd5e1; }
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
+            background-color: white;
+            padding: 16mm 18mm;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.25);
+            box-sizing: border-box;
+        }
+        @page { size: A4 portrait; margin: 0; }
         @media print {
-            .no-print { display: none; }
-            body { background-color: white; }
-            .page-container { box-shadow: none; max-width: 100%; margin: 0; padding: 20px;}
+            .no-print { display: none !important; }
+            body { background: white !important; margin: 0 !important; }
+            .a4-page { width: 100% !important; min-height: 100% !important; margin: 0 !important; box-shadow: none !important; }
+        }
+        @media screen and (max-width: 820px) {
+            .a4-page { width: 95%; padding: 20px; }
         }
     </style>
 </head>
-<body class="py-8 text-gray-800">
-    <div class="max-w-3xl mx-auto mb-4 flex items-center justify-between no-print px-2">
-        <a href="/dashboard" class="inline-flex items-center gap-1.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 py-1.5 px-3 rounded shadow-sm hover:bg-gray-50 transition">
-            ← Back to Dashboard
-        </a>
-        <div class="flex items-center gap-2">
-            <button onclick="window.print()" class="text-sm font-semibold text-gray-700 bg-white border border-gray-300 py-1.5 px-3 rounded shadow-sm hover:bg-gray-50 transition">
-                🖨️ Print
-            </button>
-            <button onclick="downloadPDF()" class="text-sm font-bold text-white bg-gray-900 py-1.5 px-4 rounded shadow hover:bg-black transition">
-                ⬇️ Download as PDF
-            </button>
+<body class="py-4 text-slate-800">
+    <!-- TOOLBAR -->
+    <div class="max-w-5xl mx-auto mb-4 no-print px-4">
+        <div class="bg-slate-900 text-white rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 shadow-xl">
+            <div class="flex items-center gap-2">
+                <a href="/dashboard" class="text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 py-1.5 px-3 rounded-lg border border-slate-700">
+                    ← Dashboard
+                </a>
+                {% if user.id %}
+                <a href="/edit_resume/{{ user.id }}" class="text-xs font-semibold text-amber-300 bg-amber-950/60 py-1.5 px-3 rounded-lg border border-amber-700/50">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                </a>
+                {% endif %}
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+                <select onchange="window.location.href='?template=' + this.value" class="bg-slate-800 text-slate-200 rounded-lg px-2.5 py-1.5 font-bold border border-slate-700">
+                    <option value="classic">Template: ATS Tech</option>
+                    <option value="modern">Template: Modern 2-Col</option>
+                    <option value="minimalist" selected>Template: Minimalist</option>
+                    <option value="creative">Template: Creative</option>
+                    <option value="photo">Template: Photo Resume</option>
+                </select>
+                <button onclick="window.print()" class="font-bold text-slate-200 bg-slate-800 border border-slate-600 py-1.5 px-3 rounded-lg"><i class="fa-solid fa-print"></i> Print</button>
+                <button onclick="downloadPDF()" class="font-bold text-white bg-slate-900 hover:bg-black py-1.5 px-4 rounded-lg shadow-lg border border-slate-700"><i class="fa-solid fa-file-pdf"></i> Download PDF</button>
+            </div>
         </div>
     </div>
 
-    <div class="page-container max-w-3xl mx-auto bg-white p-12 shadow-xl">
-        <header class="mb-10">
-            <h1 class="text-4xl font-light text-gray-900 mb-2">{{ user.full_name }}</h1>
-            <h2 class="text-lg text-gray-500 mb-4">{{ user.target_job }}</h2>
-            <div class="text-xs text-gray-400 flex gap-4">
+    <!-- A4 CONTAINER -->
+    <div class="a4-page" id="resume-document">
+        <header class="mb-8 border-b border-slate-200 pb-6">
+            <h1 class="text-4xl font-light text-slate-900 mb-1 tracking-tight">{{ user.full_name }}</h1>
+            {% if user.target_job %}
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-3">{{ user.target_job }}</h2>
+            {% endif %}
+            <div class="text-xs text-slate-500 flex flex-wrap gap-4">
                 <span>{{ user.email }}</span>
-                {% if user.phone %}<span>{{ user.phone }}</span>{% endif %}
-                {% if user.location %}<span>{{ user.location }}</span>{% endif %}
-            </div>
-            <div class="text-xs text-gray-400 flex gap-4 mt-1">
-                {% if user.linkedin %}<span>{{ user.linkedin }}</span>{% endif %}
-                {% if user.github %}<span>{{ user.github }}</span>{% endif %}
+                {% if user.phone %}<span>• {{ user.phone }}</span>{% endif %}
+                {% if user.location %}<span>• {{ user.location }}</span>{% endif %}
+                {% if user.linkedin %}<span>• {{ user.linkedin | replace('https://', '') }}</span>{% endif %}
+                {% if user.github %}<span>• {{ user.github | replace('https://', '') }}</span>{% endif %}
             </div>
         </header>
 
         {% if user.summary %}
-        <section class="mb-8 flex gap-8">
-            <h3 class="w-1/4 text-xs font-bold text-gray-400 uppercase tracking-widest pt-1">About</h3>
-            <div class="w-3/4 text-sm leading-relaxed text-gray-700">
-                <p>{{ user.summary }}</p>
-            </div>
-        </section>
-        {% endif %}
-
-        {% if user.experience %}
-        <section class="mb-8 flex gap-8">
-            <h3 class="w-1/4 text-xs font-bold text-gray-400 uppercase tracking-widest pt-1">Experience</h3>
-            <div class="w-3/4 text-sm leading-relaxed text-gray-700">
-                {{ user.experience | replace('\n', '<br>') | safe }}
+        <section class="mb-6 flex gap-6">
+            <h3 class="w-1/4 text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">About</h3>
+            <div class="w-3/4 text-xs leading-relaxed text-slate-700 text-justify">
+                {{ user.summary }}
             </div>
         </section>
         {% endif %}
 
         {% if user.education %}
-        <section class="mb-8 flex gap-8">
-            <h3 class="w-1/4 text-xs font-bold text-gray-400 uppercase tracking-widest pt-1">Education</h3>
-            <div class="w-3/4 text-sm leading-relaxed text-gray-700">
-                {{ user.education | replace('\n', '<br>') | safe }}
+        <section class="mb-6 flex gap-6">
+            <h3 class="w-1/4 text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">Education</h3>
+            <div class="w-3/4 space-y-2">
+                {% for edu in user.education | parse_education %}
+                <div>
+                    <div class="flex justify-between font-bold text-xs text-slate-900">
+                        <span>{{ edu.degree }}</span>
+                        {% if edu.date %}<span class="text-slate-500 font-normal">{{ edu.date }}</span>{% endif %}
+                    </div>
+                    {% if edu.subtitle %}<div class="text-[11px] text-slate-600">{{ edu.subtitle }}</div>{% endif %}
+                </div>
+                {% endfor %}
             </div>
         </section>
         {% endif %}
 
-        <section class="flex gap-8">
-            <h3 class="w-1/4 text-xs font-bold text-gray-400 uppercase tracking-widest pt-1">Skills</h3>
-            <div class="w-3/4 text-sm leading-relaxed text-gray-700">
-                <p><strong>Technical:</strong> {{ user.skills }}</p>
+        {% if user.skills %}
+        <section class="mb-6 flex gap-6">
+            <h3 class="w-1/4 text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">Skills</h3>
+            <div class="w-3/4 space-y-1.5 text-xs text-slate-700">
+                {% for cat, skills_str in user.skills | parse_skills %}
+                <div>
+                    {% if cat %}<strong class="font-bold text-slate-900">{{ cat }}:</strong> {% endif %}
+                    <span>{{ skills_str }}</span>
+                </div>
+                {% endfor %}
                 {% if user.soft_skills %}
-                <p class="mt-1"><strong>Soft:</strong> {{ user.soft_skills }}</p>
+                <div class="pt-1">
+                    <strong class="font-bold text-slate-900">Soft Skills:</strong> {{ user.soft_skills }}
+                </div>
                 {% endif %}
             </div>
         </section>
+        {% endif %}
+
+        {% if user.projects %}
+        <section class="mb-6 flex gap-6">
+            <h3 class="w-1/4 text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">Projects</h3>
+            <div class="w-3/4 space-y-3">
+                {% for proj in user.projects | parse_projects %}
+                <div>
+                    <div class="font-bold text-xs text-slate-900 flex justify-between">
+                        <span>{{ proj.title }}</span>
+                        {% if proj.links %}<span class="font-normal text-slate-500">{{ proj.links }}</span>{% endif %}
+                    </div>
+                    {% if proj.tech_stack %}<div class="text-[11px] italic text-slate-500">Tech: {{ proj.tech_stack }}</div>{% endif %}
+                    {% if proj.bullets %}
+                    <ul class="list-disc pl-4 text-xs text-slate-600 space-y-0.5 mt-1">
+                        {% for b in proj.bullets %}<li>{{ b }}</li>{% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if user.experience %}
+        <section class="mb-6 flex gap-6">
+            <h3 class="w-1/4 text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">Experience</h3>
+            <div class="w-3/4 space-y-3">
+                {% for exp in user.experience | parse_experience %}
+                <div>
+                    <div class="flex justify-between font-bold text-xs text-slate-900">
+                        <span>{{ exp.role_company }}</span>
+                        {% if exp.date %}<span class="text-slate-500 font-normal">{{ exp.date }}</span>{% endif %}
+                    </div>
+                    {% if exp.tech_stack %}
+                    <div class="text-[11px] italic text-slate-600 mt-0.5">
+                        <span class="not-italic font-semibold text-slate-700">Tech Stack:</span> {{ exp.tech_stack }}
+                    </div>
+                    {% endif %}
+                    {% if exp.bullets %}
+                    <ul class="list-disc pl-4 text-xs text-slate-600 space-y-0.5 mt-1">
+                        {% for b in exp.bullets %}<li>{{ b }}</li>{% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if user.certifications %}
+        <section class="mb-6 flex gap-6">
+            <h3 class="w-1/4 text-xs font-bold text-slate-400 uppercase tracking-widest pt-1">Honors & Certs</h3>
+            <div class="w-3/4">
+                <ul class="list-disc pl-4 text-xs text-slate-600 space-y-1">
+                    {% for cert in user.certifications | clean_bullets %}
+                    <li>{{ cert }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+        {% endif %}
     </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         function downloadPDF() {
-            var element = document.querySelector('.page-container');
+            var element = document.getElementById('resume-document');
             var opt = {
-              margin:       0,
-              filename:     '{{ user.full_name }}_Resume.pdf',
+              margin:       [0.2, 0.2, 0.2, 0.2],
+              filename:     '{{ user.full_name | replace(" ", "_") }}_Minimalist_Resume.pdf',
               image:        { type: 'jpeg', quality: 0.98 },
-              html2canvas:  { scale: 2, useCORS: true },
+              html2canvas:  { scale: 2.5, useCORS: true },
               jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
             html2pdf().set(opt).from(element).save();

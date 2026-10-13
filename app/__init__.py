@@ -32,4 +32,12 @@ def create_app(config_class=Config):
     app.register_blueprint(resumes_bp)
     app.register_blueprint(api_bp)
 
+    # Register Jinja Filters for Structured Resume Layout
+    from app.services.formatters import parse_education, parse_experience, parse_projects, parse_skills, clean_bullets
+    app.jinja_env.filters['parse_education'] = parse_education
+    app.jinja_env.filters['parse_experience'] = parse_experience
+    app.jinja_env.filters['parse_projects'] = parse_projects
+    app.jinja_env.filters['parse_skills'] = parse_skills
+    app.jinja_env.filters['clean_bullets'] = clean_bullets
+
     return app

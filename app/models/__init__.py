@@ -44,4 +44,6 @@ class Resume(db.Model):
     experience = db.Column(db.Text)
     skills = db.Column(db.Text)
     soft_skills = db.Column(db.Text)
+    projects = db.Column(db.Text)
+    certifications = db.Column(db.Text)
     profile_pic = db.Column(db.String(255))
